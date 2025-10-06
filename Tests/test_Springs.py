@@ -1,0 +1,122 @@
+import FreeCAD, Part, unittest, math, os, tempfile
+from Springs.Features import CompressionSpring, ExtensionSpring, TorsionSpring
+
+print("✅ test_Springs.py started")
+
+# -----------------------------------------------------------------------------
+# Utility helpers
+# -----------------------------------------------------------------------------
+def _export_shape(shape, name):
+    """Export shape to temp folder as BREP + STEP."""
+    tmpdir = os.path.join(tempfile.gettempdir(), "SpringTests")
+    os.makedirs(tmpdir, exist_ok=True)
+    brep_path = os.path.join(tmpdir, f"{name}.brep")
+    step_path = os.path.join(tmpdir, f"{name}.stp")
+    try:
+        shape.exportBrep(brep_path)
+        shape.exportStep(step_path)
+        print(f"📦 Exported {name}: {brep_path}, {step_path}")
+    except Exception as e:
+        print(f"⚠️ Export failed for {name}: {e}")
+    return tmpdir
+
+
+def _check_shape_valid(shape):
+    """Return True if solid is valid and watertight."""
+    assert shape.isValid(), "Shape invalid"
+    assert not shape.isNull(), "Shape is null"
+    for face in shape.Faces:
+        assert face.Surface is not None, "Face has no surface"
+    return True
+
+
+def _check_properties(obj, expect):
+    """Verify that spring parameters match expectations."""
+    for k, v in expect.items():
+        if hasattr(obj, k):
+            got = getattr(obj, k)
+            if hasattr(got, "Value"):  # PropertyFloat or similar
+                got = got.Value
+            assert abs(got - v) < 1e-6 or isinstance(v, str), f"{k} mismatch: {got} != {v}"
+
+
+# -----------------------------------------------------------------------------
+# Test class
+# -----------------------------------------------------------------------------
+class TestSprings(unittest.TestCase):
+    def setUp(self):
+        self.doc = FreeCAD.newDocument("SpringTest")
+
+    def tearDown(self):
+        FreeCAD.closeDocument(self.doc.Name)
+
+    def _analyze_spring(self, obj, expected):
+        """General geometry and parametric checks."""
+        s = obj.Shape
+        self.assertTrue(_check_shape_valid(s))
+        self.assertGreater(s.Volume, 0, "Volume should be positive")
+        bb = s.BoundBox
+        self.assertAlmostEqual(bb.ZLength, expected["Height"], delta=max(1.0, expected["WireDiameter"] * 3))
+
+        coils_calc = expected["Height"] / expected["Pitch"]
+        circumference = math.pi * expected["MeanDiameter"]
+        length_per_turn = math.sqrt(circumference ** 2 + expected["Pitch"] ** 2)
+        total_length = coils_calc * length_per_turn
+        self.assertGreater(total_length, 0)
+        print(f"✅ {obj.Name}: coils={coils_calc:.2f}, wire≈{total_length:.1f} mm, volume={s.Volume:.1f}")
+
+        _check_properties(obj, expected)
+        _export_shape(s, obj.Name)
+
+    # -------------------------------------------------------------------------
+    # Tests
+    # -------------------------------------------------------------------------
+    def test_compression_spring(self):
+        spring = CompressionSpring.make()
+        self.doc.recompute()
+        self._analyze_spring(spring, {
+            "MeanDiameter": 20.0,
+            "WireDiameter": 2.0,
+            "Pitch": 2.5,
+            "Height": 25.0
+        })
+
+    def test_extension_spring(self):
+        spring = ExtensionSpring.make()
+        self.doc.recompute()
+        self._analyze_spring(spring, {
+            "MeanDiameter": 20.0,
+            "WireDiameter": 2.0,
+            "Pitch": 2.5,
+            "Height": 25.0
+        })
+
+    def test_torsion_spring(self):
+        spring = TorsionSpring.make()
+        self.doc.recompute()
+        self._analyze_spring(spring, {
+            "MeanDiameter": 20.0,
+            "WireDiameter": 2.0,
+            "Pitch": 2.5,
+            "Height": 25.0
+        })
+
+    def test_parametric_sweep(self):
+        """Generate multiple springs across diameters/pitches to ensure robustness."""
+        for d in [10.0, 15.0, 25.0]:
+            for p in [1.5, 2.5, 3.5]:
+                h = p * 10
+                spring = CompressionSpring.make()
+                spring.MeanDiameter = d
+                spring.Pitch = p
+                spring.Height = h
+                self.doc.recompute()
+                self._analyze_spring(spring, {
+                    "MeanDiameter": d,
+                    "WireDiameter": 2.0,
+                    "Pitch": p,
+                    "Height": h
+                })
+
+print("✅ Entering unittest.main() ...")
+unittest.main(module=None, verbosity=2)

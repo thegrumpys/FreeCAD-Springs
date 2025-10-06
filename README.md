@@ -2,7 +2,7 @@
 
 Design and analyze **compression**, **extension**, and **torsion** springs directly inside FreeCAD.
 
-![Springs Workbench Toolbar](resources/icons/Springs.svg)
+![Springs Workbench Toolbar](Resources/icons/Springs.svg)
 
 ---
 
