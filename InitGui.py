@@ -18,10 +18,10 @@ class SpringsWorkbench(Gui.Workbench):
     def Initialize(self):
         # Import command modules *here*, so they're always defined when activating
         from Springs.Commands import (
-            CmdCompressionSpring,
-            CmdExtensionSpring,
-            CmdTorsionSpring,
-            CmdSpringInfo,
+            CreateCompressionSpring,
+            CreateExtensionSpring,
+            CreateTorsionSpring,
+            DisplaySpringInfo,
         )
         from Springs.Preferences.SpringsPreferencePage import SpringsPreferencePage
 
