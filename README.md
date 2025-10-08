@@ -50,22 +50,52 @@ Design and analyze **compression**, **extension**, and **torsion** springs direc
 ## 📁 Repository Structure
 
     FreeCAD-Springs/
-    ├─ InitGui.py
-    ├─ CompressionSpring.py
-    ├─ ExtensionSpring.py
-    ├─ TorsionSpring.py
-    ├─ MaterialTools.py
-    ├─ CatalogTools.py
-    ├─ CatalogCompareDialog.py
-    ├─ resources/
-    │ ├─ icons/
-    │ ├─ translations/
-    │ └─ materials/
-    ├─ Catalogs/
-    │ ├─ compression.json
-    │ └─ extension.json
-    ├─ LICENSE
-    └─ .addon.json
+    ├── __init__.py
+    ├── Commands
+    │   ├── __init__.py
+    │   ├── CmdCompressionSpring.py
+    │   ├── CmdExtensionSpring.py
+    │   ├── CmdSpringInfo.py
+    │   └── CmdTorsionSpring.py
+    ├── Dialogs
+    │   ├── __init__.py
+    │   └── SpringInfoDialog.py
+    ├── Features
+    │   ├── __init__.py
+    │   ├── CompressionSpring.py
+    │   ├── ExtensionSpring.py
+    │   ├── TorsionSpring.py
+    │   ├── Utils.py
+    │   └── ViewProviderSpring.py
+    ├── Init.py
+    ├── InitGui.py
+    ├── LICENSE
+    ├── Preferences
+    │   ├── __init__.py
+    │   └── SpringsPreferencePage.py
+    ├── README.md
+    ├── Resources
+    │   └── icons
+    │       ├── compression.svg
+    │       ├── extension.svg
+    │       ├── preferences-springs.svg
+    │       ├── SpringInfo.svg
+    │       ├── torsion.svg
+    │       └── workbench.svg
+    └── Tests
+        └── test_Springs.py
+
+---
+
+## ✅ Testing
+
+Run the regression suite from FreeCAD's command-line executable so the
+application modules are available to the interpreter:
+
+```bash
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd \
+  ~/Library/Application\ Support/FreeCAD/Mod/Springs/Tests/test_Springs.py
+```
 
 ---
 
