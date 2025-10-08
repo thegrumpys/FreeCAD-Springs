@@ -26,9 +26,9 @@ class SpringsWorkbench(Gui.Workbench):
         from Springs.Preferences.SpringsPreferencePage import SpringsPreferencePage
 
         # Register commands
-        CmdCompressionSpring.register()
-        CmdExtensionSpring.register()
-        CmdTorsionSpring.register()
+        CreateCompressionSpring.register()
+        CreateExtensionSpring.register()
+        CreateTorsionSpring.register()
 
         # Build toolbar/menu
         self.list = [
