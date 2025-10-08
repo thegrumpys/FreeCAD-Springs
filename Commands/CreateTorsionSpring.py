@@ -1,7 +1,7 @@
 import FreeCADGui as Gui
 from Features import TorsionSpring
 
-class CmdTorsionSpring:
+class CreateTorsionSpring:
     """Command to create a parametric torsion spring"""
 
     def GetResources(self):
@@ -23,4 +23,4 @@ class CmdTorsionSpring:
 
 def register():
     """Registers this command with FreeCAD"""
-    Gui.addCommand("Springs_CreateTorsion", CmdTorsionSpring())
+    Gui.addCommand("Springs_CreateTorsionSpring", CreateTorsionSpring())

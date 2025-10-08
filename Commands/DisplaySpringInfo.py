@@ -1,7 +1,7 @@
 import FreeCADGui
 from Springs.Dialogs.SpringInfoDialog import SpringInfoDialog
 
-class CmdSpringInfo:
+class DisplaySpringInfo:
     def GetResources(self):
         return {
             'Pixmap': 'SpringInfo.svg',
@@ -15,4 +15,4 @@ class CmdSpringInfo:
     def IsActive(self):
         return bool(FreeCADGui.Selection.getSelection())
 
-FreeCADGui.addCommand('Springs_SpringInfo', CmdSpringInfo())
+FreeCADGui.addCommand('Springs_DisplaySpringInfo', DisplaySpringInfo())

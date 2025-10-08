@@ -32,10 +32,10 @@ class SpringsWorkbench(Gui.Workbench):
 
         # Build toolbar/menu
         self.list = [
-            "Springs_CreateCompression",
-            "Springs_CreateExtension",
-            "Springs_CreateTorsion",
-            "Springs_SpringInfo",
+            "Springs_CreateCompressionSpring",
+            "Springs_CreateExtensionSpring",
+            "Springs_CreateTorsionSpring",
+            "Springs_DisplaySpringInfo",
         ]
         self.appendToolbar("Springs", self.list)
         self.appendMenu("Springs", self.list)

@@ -1,7 +1,7 @@
 import FreeCADGui as Gui
 from Features import CompressionSpring
 
-class CmdCompressionSpring:
+class CreateCompressionSpring:
     """Command to create a parametric compression spring"""
 
     def GetResources(self):
@@ -22,4 +22,4 @@ class CmdCompressionSpring:
 
 def register():
     """Registers this command with FreeCAD"""
-    Gui.addCommand("Springs_CreateCompression", CmdCompressionSpring())
+    Gui.addCommand("Springs_CreateCompressionSpring", CreateCompressionSpring())

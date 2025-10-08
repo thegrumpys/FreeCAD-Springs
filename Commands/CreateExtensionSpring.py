@@ -1,7 +1,7 @@
 import FreeCADGui as Gui
 from Features import ExtensionSpring
 
-class CmdExtensionSpring:
+class CreateExtensionSpring:
     """Command to create a parametric extension spring"""
 
     def GetResources(self):
@@ -22,4 +22,4 @@ class CmdExtensionSpring:
 
 def register():
     """Registers this command with FreeCAD"""
-    Gui.addCommand("Springs_CreateExtension", CmdExtensionSpring())
+    Gui.addCommand("Springs_CreateExtensionSpring", CreateExtensionSpring())

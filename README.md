@@ -47,7 +47,7 @@ Design and analyze **compression**, **extension**, and **torsion** springs direc
 
 ---
 
-## 📁 Repository Structure
+## 📁 Repository Structure (via `tree -I '__pycache__'`)
 
     FreeCAD-Springs/
     ├── __init__.py
