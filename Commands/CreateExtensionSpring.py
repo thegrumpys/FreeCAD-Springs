@@ -1,5 +1,5 @@
 import FreeCADGui as Gui
-from Features import ExtensionSpring
+from Features.Extension import Spring as ExtensionSpring
 
 class CreateExtensionSpring:
     """Command to create a parametric extension spring"""

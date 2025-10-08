@@ -1,5 +1,5 @@
 import FreeCADGui as Gui
-from Features import CompressionSpring
+from Features.Compression import Spring as CompressionSpring
 
 class CreateCompressionSpring:
     """Command to create a parametric compression spring"""

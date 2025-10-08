@@ -1,5 +1,7 @@
 import FreeCAD, Part, unittest, math, os, tempfile
-from Springs.Features import CompressionSpring, ExtensionSpring, TorsionSpring
+from Springs.Features.Compression import Spring as CompressionSpring
+from Springs.Features.Extension import Spring as ExtensionSpring
+from Springs.Features.Torsion import Spring as TorsionSpring
 
 print("✅ test_Springs.py started")
 

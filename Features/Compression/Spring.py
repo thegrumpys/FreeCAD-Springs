@@ -1,9 +1,8 @@
 import FreeCAD
-from . import Utils
-from .ViewProviderSpring import ViewProviderSpring
+from .. import Utils
+from ..ViewProviderSpring import ViewProviderSpring
 
-
-class ExtensionSpring:
+class Spring:
     def __init__(self, obj):
         Utils.add_property(obj, "MeanDiameter", 20.0)
         Utils.add_property(obj, "WireDiameter", 2.0)
@@ -21,7 +20,7 @@ class ExtensionSpring:
 
 def make():
     doc = FreeCAD.ActiveDocument or FreeCAD.newDocument()
-    obj = doc.addObject("Part::FeaturePython", "ExtensionSpring")
-    ExtensionSpring(obj)
+    obj = doc.addObject("Part::FeaturePython", "CompressionSpring")
+    Spring(obj)
     doc.recompute()
     return obj

@@ -1,5 +1,5 @@
 import FreeCADGui as Gui
-from Features import TorsionSpring
+from Features.Torsion import Spring as TorsionSpring
 
 class CreateTorsionSpring:
     """Command to create a parametric torsion spring"""

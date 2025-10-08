@@ -1,9 +1,8 @@
 import FreeCAD
-from . import Utils
-from .ViewProviderSpring import ViewProviderSpring
+from .. import Utils
+from ..ViewProviderSpring import ViewProviderSpring
 
-
-class TorsionSpring:
+class Spring:
     def __init__(self, obj):
         Utils.add_property(obj, "MeanDiameter", 20.0)
         Utils.add_property(obj, "WireDiameter", 2.0)
@@ -22,6 +21,6 @@ class TorsionSpring:
 def make():
     doc = FreeCAD.ActiveDocument or FreeCAD.newDocument()
     obj = doc.addObject("Part::FeaturePython", "TorsionSpring")
-    TorsionSpring(obj)
+    Spring(obj)
     doc.recompute()
     return obj

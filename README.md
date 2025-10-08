@@ -62,9 +62,15 @@ Design and analyze **compression**, **extension**, and **torsion** springs direc
     │   └── SpringInfoDialog.py
     ├── Features
     │   ├── __init__.py
-    │   ├── CompressionSpring.py
-    │   ├── ExtensionSpring.py
-    │   ├── TorsionSpring.py
+    │   ├── Compression
+    │   │   ├── __init__.py
+    │   │   └── Spring.py
+    │   ├── Extension
+    │   │   ├── __init__.py
+    │   │   └── Spring.py
+    │   ├── Torsion
+    │   │   ├── __init__.py
+    │   │   └── Spring.py
     │   ├── Utils.py
     │   └── ViewProviderSpring.py
     ├── Init.py
