@@ -1,4 +1,4 @@
-import FreeCADGui
+import FreeCADGui as Gui
 from Springs.Dialogs.SpringInfoDialog import SpringInfoDialog
 
 class DisplaySpringInfo:
@@ -13,6 +13,8 @@ class DisplaySpringInfo:
         SpringInfoDialog.show_for_selected()
 
     def IsActive(self):
-        return bool(FreeCADGui.Selection.getSelection())
+        return bool(Gui.Selection.getSelection())
 
-FreeCADGui.addCommand('Springs_DisplaySpringInfo', DisplaySpringInfo())
+def register():
+    """Registers this command with FreeCAD"""
+    Gui.addCommand("Springs_DisplaySpringInfo", DisplaySpringInfo())

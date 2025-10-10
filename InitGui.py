@@ -29,6 +29,7 @@ class SpringsWorkbench(Gui.Workbench):
         CreateCompressionSpring.register()
         CreateExtensionSpring.register()
         CreateTorsionSpring.register()
+        DisplaySpringInfo.register()
 
         # Build toolbar/menu
         self.list = [

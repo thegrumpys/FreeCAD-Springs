@@ -2,41 +2,79 @@ import FreeCAD, FreeCADGui
 from PySide2 import QtWidgets
 
 class SpringsPreferencePage:
+    PARAM_PATH = "User parameter:BaseApp/Preferences/Mod/Springs"
+
+    INTEGER_PREFERENCES = (
+        ("ioopt", "IO optimization mode", 3),
+        ("maxit", "Maximum iterations", 600),
+        ("weapon", "Weapon selection", 1),
+        ("nmerit", "Merit function", 1),
+    )
+
+    FLOAT_PREFERENCES = (
+        ("fix_wt", "Fix weight", 1.5),
+        ("con_wt", "Constraint weight", 1.0),
+        ("zero_wt", "Zero weight", 10.0),
+        ("viol_wt", "Violation weight", 1.0),
+        ("mfn_wt", "Merit function weight", 0.01),
+        ("objmin", "Objective minimum", 0.00001),
+        ("del", "Step size", 1.0),
+        ("delmin", "Minimum step size", 0.0001),
+        ("tol", "Tolerance", 0.0001),
+        ("smallnum", "Small number threshold", 1.0e-07),
+    )
+
+    BOOLEAN_PREFERENCES = (
+        ("show_units", "Show units", True),
+        ("show_violations", "Show violations", True),
+        ("enable_auto_fix", "Enable auto fix", True),
+        ("enable_auto_search", "Enable auto search", True),
+    )
+
     def __init__(self):
         self.form = QtWidgets.QWidget()
         layout = QtWidgets.QFormLayout(self.form)
-        self.default_diameter = QtWidgets.QDoubleSpinBox()
-        self.default_diameter.setRange(1.0, 100.0)
-        self.default_diameter.setValue(20.0)
-        layout.addRow("Default mean diameter (mm):", self.default_diameter)
+        self._int_controls = {}
+        self._float_controls = {}
+        self._bool_controls = {}
 
-        self.default_wire = QtWidgets.QDoubleSpinBox()
-        self.default_wire.setRange(0.1, 10.0)
-        self.default_wire.setValue(2.0)
-        layout.addRow("Default wire diameter (mm):", self.default_wire)
+        for key, label, default in self.INTEGER_PREFERENCES:
+            spin = QtWidgets.QSpinBox()
+            spin.setRange(-999999, 999999)
+            spin.setValue(default)
+            self._int_controls[key] = spin
+            layout.addRow(f"{label}:", spin)
 
-        self.default_pitch = QtWidgets.QDoubleSpinBox()
-        self.default_pitch.setRange(0.1, 10.0)
-        self.default_pitch.setValue(2.5)
-        layout.addRow("Default pitch (mm):", self.default_pitch)
+        for key, label, default in self.FLOAT_PREFERENCES:
+            spin = QtWidgets.QDoubleSpinBox()
+            spin.setDecimals(8)
+            spin.setRange(-1e9, 1e9)
+            spin.setValue(default)
+            self._float_controls[key] = spin
+            layout.addRow(f"{label}:", spin)
 
-        self.default_height = QtWidgets.QDoubleSpinBox()
-        self.default_height.setRange(1.0, 200.0)
-        self.default_height.setValue(25.0)
-        layout.addRow("Default height (mm):", self.default_height)
+        for key, label, default in self.BOOLEAN_PREFERENCES:
+            checkbox = QtWidgets.QCheckBox()
+            checkbox.setChecked(default)
+            self._bool_controls[key] = checkbox
+            layout.addRow(f"{label}:", checkbox)
 
     def saveSettings(self):
-        p = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/Springs")
-        p.SetFloat("MeanDiameter", self.default_diameter.value())
-        p.SetFloat("WireDiameter", self.default_wire.value())
-        p.SetFloat("Pitch", self.default_pitch.value())
-        p.SetFloat("Height", self.default_height.value())
+        params = FreeCAD.ParamGet(self.PARAM_PATH)
+        for key, _, default in self.INTEGER_PREFERENCES:
+            params.SetInt(key, self._int_controls[key].value())
+        for key, _, default in self.FLOAT_PREFERENCES:
+            params.SetFloat(key, self._float_controls[key].value())
+        for key, _, default in self.BOOLEAN_PREFERENCES:
+            params.SetBool(key, self._bool_controls[key].isChecked())
 
     def loadSettings(self):
-        p = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/Springs")
-        self.default_diameter.setValue(p.GetFloat("MeanDiameter", 20.0))
-        self.default_wire.setValue(p.GetFloat("WireDiameter", 2.0))
-        self.default_pitch.setValue(p.GetFloat("Pitch", 2.5))
-        self.default_height.setValue(p.GetFloat("Height", 25.0))
+        params = FreeCAD.ParamGet(self.PARAM_PATH)
+        for key, _, default in self.INTEGER_PREFERENCES:
+            self._int_controls[key].setValue(params.GetInt(key, default))
+        for key, _, default in self.FLOAT_PREFERENCES:
+            self._float_controls[key].setValue(params.GetFloat(key, default))
+        for key, _, default in self.BOOLEAN_PREFERENCES:
+            self._bool_controls[key].setChecked(params.GetBool(key, default))
 
 FreeCADGui.addPreferencePage(SpringsPreferencePage, "Springs")

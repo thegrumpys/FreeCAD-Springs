@@ -6,6 +6,33 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+
+SPRING_PREFERENCES_PATH = "User parameter:BaseApp/Preferences/Mod/Springs"
+
+
+def _spring_preferences() -> FreeCAD.ParamGet:
+    """Return the ParamGet instance for the Springs preference group."""
+
+    return FreeCAD.ParamGet(SPRING_PREFERENCES_PATH)
+
+
+def preference_int(name: str, default: int) -> int:
+    """Read an integer preference value with a fallback default."""
+
+    return _spring_preferences().GetInt(name, default)
+
+
+def preference_float(name: str, default: float) -> float:
+    """Read a floating-point preference value with a fallback default."""
+
+    return _spring_preferences().GetFloat(name, default)
+
+
+def preference_bool(name: str, default: bool) -> bool:
+    """Read a boolean preference value with a fallback default."""
+
+    return _spring_preferences().GetBool(name, default)
+
 def add_property(obj, name, default, typ="App::PropertyFloat", group="Spring"):
     """Safely add a FreeCAD property if it doesn't already exist."""
     if not hasattr(obj, name):

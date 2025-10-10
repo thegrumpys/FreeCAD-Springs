@@ -36,7 +36,7 @@ Design and analyze **compression**, **extension**, and **torsion** springs direc
 
 ## 🚀 Usage
 
-1. Switch to the **Springs Workbench**.  
+1. Switch to the **Springs Workbench**.
 2. Use the toolbar or menu to create:
    - **Compression Spring**
    - **Extension Spring**
@@ -44,6 +44,25 @@ Design and analyze **compression**, **extension**, and **torsion** springs direc
 3. Edit geometry, material, loads, and placement in the Property Editor.  
 4. Optionally run the **solver** to optimize parameters.  
 5. Open **Find Catalog Matches** to locate real-world equivalents.
+
+---
+
+## ⚙️ Preferences in code
+
+The preference page (``Edit → Preferences → Springs``) stores solver options,
+weights, and UI toggles inside FreeCAD's parameter system. Modules can query
+these values through helpers in ``Features.Utils``:
+
+```python
+from Springs.Features import Utils
+
+max_iterations = Utils.preference_int("maxit", 600)
+objective_minimum = Utils.preference_float("objmin", 1.0e-5)
+show_units = Utils.preference_bool("show_units", True)
+```
+
+Each helper reads from ``BaseApp/Preferences/Mod/Springs`` and falls back to
+the supplied default if a setting has not been stored yet.
 
 ---
 
