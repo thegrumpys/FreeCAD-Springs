@@ -8,7 +8,7 @@ from ..ViewProviderSpring import ViewProviderSpring
 END_TYPES = Utils.load_end_type_table(Path(__file__).parent / "endtypes.json")
 
 
-class Spring:
+class TorsionSpring:
     def __init__(self, obj):
         Utils.add_property(obj, "MeanDiameter", 20.0)
         Utils.add_property(obj, "WireDiameter", 2.0)
@@ -36,6 +36,6 @@ class Spring:
 def make():
     doc = FreeCAD.ActiveDocument or FreeCAD.newDocument()
     obj = doc.addObject("Part::FeaturePython", "TorsionSpring")
-    Spring(obj)
+    TorsionSpring(obj)
     doc.recompute()
     return obj
