@@ -103,6 +103,23 @@ class TestSprings(unittest.TestCase):
             "Height": 25.0
         })
 
+    def test_end_type_secondary_properties(self):
+        spring = CompressionSpring.make()
+        self.doc.recompute()
+        end_type = getattr(spring, "EndType", None)
+        if isinstance(end_type, (list, tuple)):
+            end_type = end_type[0] if end_type else None
+        self.assertEqual(end_type, "Plain")
+        self.assertTrue(hasattr(spring, "Inactive_Coils"))
+        self.assertAlmostEqual(getattr(spring, "Inactive_Coils", 0.0), 0.0)
+        self.assertTrue(hasattr(spring, "Add_Coils"))
+        self.assertAlmostEqual(getattr(spring, "Add_Coils", 0.0), 0.0)
+
+        spring.EndType = "Squared"
+        self.doc.recompute()
+        self.assertAlmostEqual(getattr(spring, "Inactive_Coils", 0.0), 2.0)
+        self.assertAlmostEqual(getattr(spring, "Add_Coils", 0.0), 1.0)
+
     def test_parametric_sweep(self):
         """Generate multiple springs across diameters/pitches to ensure robustness."""
         for d in [10.0, 15.0, 25.0]:
