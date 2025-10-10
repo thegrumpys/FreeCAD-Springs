@@ -5,7 +5,7 @@ from .. import Utils
 from ..ViewProviderSpring import ViewProviderSpring
 
 
-END_TYPES = Utils.load_end_type_table(Path(__file__).parent / "endtypes.json")
+ENDTYPES = Utils.load_end_type_table(Path(__file__).parent / "endtypes.json")
 
 
 class TorsionSpring:
@@ -15,8 +15,8 @@ class TorsionSpring:
         Utils.add_property(obj, "Pitch", 2.5)
         Utils.add_property(obj, "NumberOfTurns", 10)
         Utils.add_property(obj, "Height", 25.0)
-        selected = Utils.ensure_end_type_properties(obj, END_TYPES)
-        Utils.apply_end_type_properties(obj, END_TYPES, selected)
+        selected = Utils.ensure_end_type_properties(obj, ENDTYPES)
+        Utils.apply_end_type_properties(obj, ENDTYPES, selected)
         obj.Proxy = self
         ViewProviderSpring(obj.ViewObject)
 
@@ -30,7 +30,7 @@ class TorsionSpring:
             selection = getattr(obj, "EndType", None)
             if isinstance(selection, (list, tuple)):
                 selection = selection[0] if selection else None
-            Utils.apply_end_type_properties(obj, END_TYPES, selection)
+            Utils.apply_end_type_properties(obj, ENDTYPES, selection)
 
 
 def make():

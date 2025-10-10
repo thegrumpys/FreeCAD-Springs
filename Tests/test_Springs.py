@@ -109,16 +109,16 @@ class TestSprings(unittest.TestCase):
         end_type = getattr(spring, "EndType", None)
         if isinstance(end_type, (list, tuple)):
             end_type = end_type[0] if end_type else None
-        self.assertEqual(end_type, "Plain")
-        self.assertTrue(hasattr(spring, "Inactive_Coils"))
-        self.assertAlmostEqual(getattr(spring, "Inactive_Coils", 0.0), 0.0)
-        self.assertTrue(hasattr(spring, "Add_Coils"))
-        self.assertAlmostEqual(getattr(spring, "Add_Coils", 0.0), 0.0)
+        self.assertEqual(end_type, "Open")
+        self.assertTrue(hasattr(spring, "InactiveCoils"))
+        self.assertAlmostEqual(getattr(spring, "InactiveCoils", 0.0), 0.0)
+        self.assertTrue(hasattr(spring, "AddCoilsAtSolid"))
+        self.assertAlmostEqual(getattr(spring, "AddCoilsAtSolid", 0.0), 1.0)
 
-        spring.EndType = "Squared"
+        spring.EndType = "Closed"
         self.doc.recompute()
-        self.assertAlmostEqual(getattr(spring, "Inactive_Coils", 0.0), 2.0)
-        self.assertAlmostEqual(getattr(spring, "Add_Coils", 0.0), 1.0)
+        self.assertAlmostEqual(getattr(spring, "InactiveCoils", 0.0), 2.0)
+        self.assertAlmostEqual(getattr(spring, "AddCoilsAtSolid", 0.0), 1.0)
 
     def test_parametric_sweep(self):
         """Generate multiple springs across diameters/pitches to ensure robustness."""

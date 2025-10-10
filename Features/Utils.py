@@ -137,7 +137,7 @@ def load_end_type_table(path: Union[str, Path]) -> Optional[EndTypeTable]:
         return None
 
     header, *rows = data
-    if not header or header[0] != "End_Type":
+    if not header or header[0] != "EndType":
         return None
 
     props = [_parse_property_key(h) for h in header[1:]]
@@ -155,7 +155,7 @@ def load_end_type_table(path: Union[str, Path]) -> Optional[EndTypeTable]:
         }
         values[option] = mapping
 
-    return EndTypeTable(name="End_Type", options=options, properties=props, values=values)
+    return EndTypeTable(name="EndType", options=options, properties=props, values=values)
 
 
 def ensure_end_type_properties(obj, table: Optional[EndTypeTable]) -> Optional[str]:

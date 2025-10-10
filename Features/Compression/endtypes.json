@@ -1,5 +1,5 @@
 [
-    [ "End_Type","Inactive_Coils","Add_Coils@Solid" ],
+    [ "EndType","InactiveCoils","AddCoilsAtSolid" ],
     [ "Open",           0.0,       1.0],
     [ "Open&Ground",    1.0,       0.0],
     [ "Closed",         2.0,       1.0],
