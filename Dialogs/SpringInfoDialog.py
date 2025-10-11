@@ -14,8 +14,8 @@ class SpringInfoDialog(QtWidgets.QDialog):
         self.table = QtWidgets.QTableWidget()
         self.table.setColumnCount(8)
         self.table.setHorizontalHeaderLabels([
-            "Name", "Mean Ø (mm)", "Wire Ø (mm)", "Pitch (mm)",
-            "Height (mm)", "Coils", "Wire Len (mm)", "Rate (N/mm)"
+            "Name", "Outer Ø @ Free (mm)", "Wire Ø (mm)", "Pitch (mm)",
+            "Length @ Free (mm)", "Coils", "Wire Len (mm)", "Rate (N/mm)"
         ])
         self._populate_table()
         layout.addWidget(self.table)
@@ -34,17 +34,17 @@ class SpringInfoDialog(QtWidgets.QDialog):
     def _populate_table(self):
         self.table.setRowCount(len(self.objs))
         for i, obj in enumerate(self.objs):
-            mean_d = getattr(obj, "MeanDiameter", 20.0)
+            outer_d = getattr(obj, "OuterDiameterAtFree", 20.0)
             wire_d = getattr(obj, "WireDiameter", 2.0)
             pitch = getattr(obj, "Pitch", 2.5)
-            height = getattr(obj, "Height", 25.0)
-            coils = Utils.spring_coils(height, pitch)
-            wire_len = Utils.spring_wire_length(mean_d, pitch, coils)
-            rate = Utils.spring_rate(79.3e9, wire_d / 1000, mean_d / 1000, coils)
+            length_free = getattr(obj, "LengthAtFree", 25.0)
+            coils = Utils.spring_coils(length_free, pitch)
+            wire_len = Utils.spring_wire_length(outer_d, pitch, coils)
+            rate = Utils.spring_rate(79.3e9, wire_d / 1000, outer_d / 1000, coils)
 
             for j, val in enumerate([
-                obj.Name, f"{mean_d:.2f}", f"{wire_d:.2f}",
-                f"{pitch:.2f}", f"{height:.2f}", f"{coils:.2f}",
+                obj.Name, f"{outer_d:.2f}", f"{wire_d:.2f}",
+                f"{pitch:.2f}", f"{length_free:.2f}", f"{coils:.2f}",
                 f"{wire_len:.1f}", f"{rate:.3f}"
             ]):
                 self.table.setItem(i, j, QtWidgets.QTableWidgetItem(val))
@@ -64,8 +64,8 @@ class SpringInfoDialog(QtWidgets.QDialog):
         with open(path, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([
-                "Name", "MeanDiameter_mm", "WireDiameter_mm", "Pitch_mm",
-                "Height_mm", "Coils", "WireLength_mm", "SpringRate_N_per_mm"
+                "Name", "OuterDiameterAtFree_mm", "WireDiameter_mm", "Pitch_mm",
+                "LengthAtFree_mm", "Coils", "WireLength_mm", "SpringRate_N_per_mm"
             ])
             for i in range(self.table.rowCount()):
                 writer.writerow([

@@ -58,10 +58,10 @@ class TestSprings(unittest.TestCase):
         self.assertTrue(_check_shape_valid(s))
         self.assertGreater(s.Volume, 0, "Volume should be positive")
         bb = s.BoundBox
-        self.assertAlmostEqual(bb.ZLength, expected["Height"], delta=max(1.0, expected["WireDiameter"] * 3))
+        self.assertAlmostEqual(bb.ZLength, expected["LengthAtFree"], delta=max(1.0, expected["WireDiameter"] * 3))
 
-        coils_calc = expected["Height"] / expected["Pitch"]
-        circumference = math.pi * expected["MeanDiameter"]
+        coils_calc = expected["LengthAtFree"] / expected["Pitch"]
+        circumference = math.pi * expected["OuterDiameterAtFree"]
         length_per_turn = math.sqrt(circumference ** 2 + expected["Pitch"] ** 2)
         total_length = coils_calc * length_per_turn
         self.assertGreater(total_length, 0)
@@ -77,30 +77,30 @@ class TestSprings(unittest.TestCase):
         spring = CompressionSpring.make()
         self.doc.recompute()
         self._analyze_spring(spring, {
-            "MeanDiameter": 20.0,
+            "OuterDiameterAtFree": 20.0,
             "WireDiameter": 2.0,
             "Pitch": 2.5,
-            "Height": 25.0
+            "LengthAtFree": 25.0
         })
 
     def test_extension_spring(self):
         spring = ExtensionSpring.make()
         self.doc.recompute()
         self._analyze_spring(spring, {
-            "MeanDiameter": 20.0,
+            "OuterDiameterAtFree": 20.0,
             "WireDiameter": 2.0,
             "Pitch": 2.5,
-            "Height": 25.0
+            "LengthAtFree": 25.0
         })
 
     def test_torsion_spring(self):
         spring = TorsionSpring.make()
         self.doc.recompute()
         self._analyze_spring(spring, {
-            "MeanDiameter": 20.0,
+            "OuterDiameterAtFree": 20.0,
             "WireDiameter": 2.0,
             "Pitch": 2.5,
-            "Height": 25.0
+            "LengthAtFree": 25.0
         })
 
     def test_end_type_secondary_properties(self):
@@ -126,15 +126,15 @@ class TestSprings(unittest.TestCase):
             for p in [1.5, 2.5, 3.5]:
                 h = p * 10
                 spring = CompressionSpring.make()
-                spring.MeanDiameter = d
+                spring.OuterDiameterAtFree = d
                 spring.Pitch = p
-                spring.Height = h
+                spring.LengthAtFree = h
                 self.doc.recompute()
                 self._analyze_spring(spring, {
-                    "MeanDiameter": d,
+                    "OuterDiameterAtFree": d,
                     "WireDiameter": 2.0,
                     "Pitch": p,
-                    "Height": h
+                    "LengthAtFree": h
                 })
 
 print("✅ Entering unittest.main() ...")
