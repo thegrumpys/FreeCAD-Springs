@@ -77,6 +77,7 @@ def spring_solid_length(wire_diameter, coils):
     """Total length when fully compressed."""
     return wire_diameter * (coils + 1)
 
+
 # -----------------------------------------------------------------------------
 # End type helpers
 # -----------------------------------------------------------------------------

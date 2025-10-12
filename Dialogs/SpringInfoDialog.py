@@ -1,6 +1,6 @@
 import FreeCAD, FreeCADGui
 from PySide2 import QtWidgets
-import math, csv, tempfile, os, datetime
+import csv, tempfile, os, datetime
 
 from Spring.Features import Utils
 
@@ -41,7 +41,7 @@ class SpringInfoDialog(QtWidgets.QDialog):
             length_free = getattr(obj, "LengthAtFree", 25.0)
             coils = Utils.spring_coils(length_free, pitch)
             wire_len = Utils.spring_wire_length(outer_d, pitch, coils)
-            rate = Utils.spring_rate(79.3e9, wire_d / 1000, outer_d / 1000, coils)
+            rate = getattr(obj, "Rate", 0.0)
 
             for j, val in enumerate([
                 obj.Name, f"{outer_d:.2f}", f"{wire_d:.2f}",
