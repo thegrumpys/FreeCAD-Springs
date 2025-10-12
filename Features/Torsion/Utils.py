@@ -2,33 +2,38 @@
 
 from __future__ import annotations
 
-from typing import Union
-
 MUSIC_WIRE_YOUNG_MODULUS = 207e9  # Pascals
 
 
-Number = Union[float, int]
+def _as_float(value, default):
+    try:
+        candidate = getattr(value, "Value", value)
+        return float(candidate)
+    except (TypeError, ValueError):
+        return float(default)
 
 
-def spring_rate(
-    wire_diameter_m: Number,
-    mean_diameter_m: Number,
-    coils: Number,
-    *,
-    modulus: Number = MUSIC_WIRE_YOUNG_MODULUS,
-) -> float:
-    """Return the torsion spring rate in N·mm per radian."""
+def update_properties(obj) -> None:
+    """Update ``obj.Rate`` based on the object's geometry in N·mm per radian."""
+
+    rate = 0.0
 
     try:
-        d = float(wire_diameter_m)
-        D = float(mean_diameter_m)
-        n = float(coils)
-        E = float(modulus)
-    except (TypeError, ValueError):
-        return 0.0
+        outer = float(obj.OuterDiameterAtFree)
+        wire = float(obj.WireDiameter)
+        coils = float(obj.CoilsTotal)
+        young_modulus = _as_float(getattr(obj, "ElasticModulus", MUSIC_WIRE_YOUNG_MODULUS), MUSIC_WIRE_YOUNG_MODULUS)
+    except (AttributeError, TypeError, ValueError):
+        obj.Rate = rate
+        return
 
-    if d <= 0.0 or D <= 0.0 or n <= 0.0 or E <= 0.0:
-        return 0.0
+    mean_diameter = outer - wire
+    if mean_diameter <= 0.0 or wire <= 0.0 or coils <= 0.0 or young_modulus <= 0.0:
+        obj.Rate = rate
+        return
 
-    torque_per_radian = (E * d**4) / (64.0 * n * D)
-    return torque_per_radian * 1000.0
+    wire_m = wire / 1000.0
+    mean_m = mean_diameter / 1000.0
+    torque_per_radian = (young_modulus * wire_m**4) / (64.0 * coils * mean_m)
+    rate = torque_per_radian * 1000.0
+    obj.Rate = rate

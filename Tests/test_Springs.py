@@ -1,4 +1,5 @@
 import FreeCAD, Part, unittest, math, os, tempfile
+from types import SimpleNamespace
 from Springs.Features.Compression import Spring as CompressionSpring
 from Springs.Features.Compression import Utils as CompressionUtils
 from Springs.Features.Extension import Spring as ExtensionSpring
@@ -8,18 +9,39 @@ from Springs.Features.Torsion import Utils as TorsionUtils
 
 
 def _expected_compression_rate(outer_diameter, wire_diameter, coils):
-    mean_diameter = outer_diameter - wire_diameter
-    return CompressionUtils.spring_rate(wire_diameter / 1000.0, mean_diameter / 1000.0, coils)
+    obj = SimpleNamespace(
+        OuterDiameterAtFree=outer_diameter,
+        WireDiameter=wire_diameter,
+        CoilsTotal=coils,
+        TorsionModulus=CompressionUtils.MUSIC_WIRE_SHEAR_MODULUS,
+        Rate=0.0,
+    )
+    CompressionUtils.update_properties(obj)
+    return obj.Rate
 
 
 def _expected_extension_rate(outer_diameter, wire_diameter, coils):
-    mean_diameter = outer_diameter - wire_diameter
-    return ExtensionUtils.spring_rate(wire_diameter / 1000.0, mean_diameter / 1000.0, coils)
+    obj = SimpleNamespace(
+        OuterDiameterAtFree=outer_diameter,
+        WireDiameter=wire_diameter,
+        CoilsTotal=coils,
+        TorsionModulus=ExtensionUtils.MUSIC_WIRE_SHEAR_MODULUS,
+        Rate=0.0,
+    )
+    ExtensionUtils.update_properties(obj)
+    return obj.Rate
 
 
 def _expected_torsion_rate(outer_diameter, wire_diameter, coils):
-    mean_diameter = outer_diameter - wire_diameter
-    return TorsionUtils.spring_rate(wire_diameter / 1000.0, mean_diameter / 1000.0, coils)
+    obj = SimpleNamespace(
+        OuterDiameterAtFree=outer_diameter,
+        WireDiameter=wire_diameter,
+        CoilsTotal=coils,
+        ElasticModulus=TorsionUtils.MUSIC_WIRE_YOUNG_MODULUS,
+        Rate=0.0,
+    )
+    TorsionUtils.update_properties(obj)
+    return obj.Rate
 
 
 print("✅ test_Springs.py started")
@@ -101,6 +123,7 @@ class TestSprings(unittest.TestCase):
             "Pitch": 2.5,
             "LengthAtFree": 25.0,
             "CoilsTotal": 10.0,
+            "TorsionModulus": CompressionUtils.MUSIC_WIRE_SHEAR_MODULUS,
             "Rate": _expected_compression_rate(20.0, 2.0, 10.0)
         })
 
@@ -113,6 +136,7 @@ class TestSprings(unittest.TestCase):
             "Pitch": 2.5,
             "LengthAtFree": 25.0,
             "CoilsTotal": 10.0,
+            "TorsionModulus": ExtensionUtils.MUSIC_WIRE_SHEAR_MODULUS,
             "Rate": _expected_extension_rate(20.0, 2.0, 10.0)
         })
 
@@ -125,6 +149,7 @@ class TestSprings(unittest.TestCase):
             "Pitch": 2.5,
             "LengthAtFree": 25.0,
             "CoilsTotal": 10.0,
+            "ElasticModulus": TorsionUtils.MUSIC_WIRE_YOUNG_MODULUS,
             "Rate": _expected_torsion_rate(20.0, 2.0, 10.0)
         })
 

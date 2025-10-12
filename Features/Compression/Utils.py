@@ -2,45 +2,38 @@
 
 from __future__ import annotations
 
-from typing import Union
-
 MUSIC_WIRE_SHEAR_MODULUS = 79.3e9  # Pascals
 
 
-Number = Union[float, int]
+def _as_float(value, default):
+    try:
+        candidate = getattr(value, "Value", value)
+        return float(candidate)
+    except (TypeError, ValueError):
+        return float(default)
 
 
-def spring_rate(
-    wire_diameter_m: Number,
-    mean_diameter_m: Number,
-    coils: Number,
-    *,
-    modulus: Number = MUSIC_WIRE_SHEAR_MODULUS,
-) -> float:
-    """Return the compression spring rate in N/mm.
+def update_properties(obj) -> None:
+    """Update ``obj.Rate`` based on the object's geometry in N/mm."""
 
-    Parameters
-    ----------
-    wire_diameter_m: float
-        Wire diameter expressed in meters.
-    mean_diameter_m: float
-        Mean coil diameter expressed in meters.
-    coils: float
-        Active coil count.
-    modulus: float, optional
-        Shear modulus (defaults to music wire).
-    """
+    rate = 0.0
 
     try:
-        d = float(wire_diameter_m)
-        D = float(mean_diameter_m)
-        n = float(coils)
-        G = float(modulus)
-    except (TypeError, ValueError):
-        return 0.0
+        outer = float(obj.OuterDiameterAtFree)
+        wire = float(obj.WireDiameter)
+        coils = float(obj.CoilsTotal)
+        shear_modulus = _as_float(getattr(obj, "TorsionModulus", MUSIC_WIRE_SHEAR_MODULUS), MUSIC_WIRE_SHEAR_MODULUS)
+    except (AttributeError, TypeError, ValueError):
+        obj.Rate = rate
+        return
 
-    if d <= 0.0 or D <= 0.0 or n <= 0.0 or G <= 0.0:
-        return 0.0
+    mean_diameter = outer - wire
+    if mean_diameter <= 0.0 or wire <= 0.0 or coils <= 0.0 or shear_modulus <= 0.0:
+        obj.Rate = rate
+        return
 
-    rate_n_per_m = (G * d**4) / (8.0 * n * (D**3))
-    return rate_n_per_m / 1000.0
+    wire_m = wire / 1000.0
+    mean_m = mean_diameter / 1000.0
+    rate_n_per_m = (shear_modulus * wire_m**4) / (8.0 * coils * (mean_m**3))
+    rate = rate_n_per_m / 1000.0
+    obj.Rate = rate
