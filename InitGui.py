@@ -10,20 +10,29 @@ except NameError:
 
 Gui.addIconPath(os.path.join(MODULE_PATH, "Resources", "icons"))
 
-class SpringsWorkbench(Gui.Workbench):
-    MenuText = "Springs"
+class SpringWorkbench(Gui.Workbench):
+    MenuText = "Spring"
     ToolTip = "Design compression, extension, and torsion springs"
     Icon = "workbench.svg"
 
     def Initialize(self):
         # Import command modules *here*, so they're always defined when activating
-        from Springs.Commands import (
-            CreateCompressionSpring,
-            CreateExtensionSpring,
-            CreateTorsionSpring,
-            DisplaySpringInfo,
-        )
-        from Springs.Preferences.SpringsPreferencePage import SpringsPreferencePage
+        try:
+            from Spring.Commands import (
+                CreateCompressionSpring,
+                CreateExtensionSpring,
+                CreateTorsionSpring,
+                DisplaySpringInfo,
+            )
+            from Spring.Preferences.SpringPreferencePage import SpringPreferencePage
+        except ModuleNotFoundError:
+            from Springs.Commands import (
+                CreateCompressionSpring,
+                CreateExtensionSpring,
+                CreateTorsionSpring,
+                DisplaySpringInfo,
+            )
+            from Springs.Preferences.SpringPreferencePage import SpringPreferencePage
 
         # Register commands
         CreateCompressionSpring.register()
@@ -33,15 +42,15 @@ class SpringsWorkbench(Gui.Workbench):
 
         # Build toolbar/menu
         self.list = [
-            "Springs_CreateCompressionSpring",
-            "Springs_CreateExtensionSpring",
-            "Springs_CreateTorsionSpring",
-            "Springs_DisplaySpringInfo",
+            "Spring_CreateCompressionSpring",
+            "Spring_CreateExtensionSpring",
+            "Spring_CreateTorsionSpring",
+            "Spring_DisplaySpringInfo",
         ]
-        self.appendToolbar("Springs", self.list)
-        self.appendMenu("Springs", self.list)
+        self.appendToolbar("Spring", self.list)
+        self.appendMenu("Spring", self.list)
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"
 
-Gui.addWorkbench(SpringsWorkbench())
+Gui.addWorkbench(SpringWorkbench())

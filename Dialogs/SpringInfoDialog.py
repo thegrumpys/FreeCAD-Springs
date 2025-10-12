@@ -1,7 +1,11 @@
 import FreeCAD, FreeCADGui
 from PySide2 import QtWidgets
-from Springs.Features import Utils
 import math, csv, tempfile, os, datetime
+
+try:
+    from Spring.Features import Utils
+except ModuleNotFoundError:  # Backwards compatibility with the old package name
+    from Springs.Features import Utils
 
 class SpringInfoDialog(QtWidgets.QDialog):
     def __init__(self, objs):

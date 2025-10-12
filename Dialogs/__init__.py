@@ -1,1 +1,1 @@
-# Springs/Dialogs/__init__.py
+# Spring/Dialogs/__init__.py

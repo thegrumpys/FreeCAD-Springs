@@ -22,4 +22,4 @@ class CreateExtensionSpring:
 
 def register():
     """Registers this command with FreeCAD"""
-    Gui.addCommand("Springs_CreateExtensionSpring", CreateExtensionSpring())
+    Gui.addCommand("Spring_CreateExtensionSpring", CreateExtensionSpring())

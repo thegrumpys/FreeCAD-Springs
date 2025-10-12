@@ -1,8 +1,8 @@
 import FreeCAD, FreeCADGui
 from PySide2 import QtWidgets
 
-class SpringsPreferencePage:
-    PARAM_PATH = "User parameter:BaseApp/Preferences/Mod/Springs"
+class SpringPreferencePage:
+    PARAM_PATH = "User parameter:BaseApp/Preferences/Mod/Spring"
 
     INTEGER_PREFERENCES = (
         ("ioopt", "IO optimization mode", 3),
@@ -77,4 +77,4 @@ class SpringsPreferencePage:
         for key, _, default in self.BOOLEAN_PREFERENCES:
             self._bool_controls[key].setChecked(params.GetBool(key, default))
 
-FreeCADGui.addPreferencePage(SpringsPreferencePage, "Springs")
+FreeCADGui.addPreferencePage(SpringPreferencePage, "Spring")

@@ -7,11 +7,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 
-SPRING_PREFERENCES_PATH = "User parameter:BaseApp/Preferences/Mod/Springs"
+SPRING_PREFERENCES_PATH = "User parameter:BaseApp/Preferences/Mod/Spring"
 
 
 def _spring_preferences() -> FreeCAD.ParamGet:
-    """Return the ParamGet instance for the Springs preference group."""
+    """Return the ParamGet instance for the Spring preference group."""
 
     return FreeCAD.ParamGet(SPRING_PREFERENCES_PATH)
 

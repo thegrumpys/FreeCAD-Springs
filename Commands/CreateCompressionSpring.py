@@ -22,4 +22,4 @@ class CreateCompressionSpring:
 
 def register():
     """Registers this command with FreeCAD"""
-    Gui.addCommand("Springs_CreateCompressionSpring", CreateCompressionSpring())
+    Gui.addCommand("Spring_CreateCompressionSpring", CreateCompressionSpring())

@@ -1,8 +1,8 @@
-# 🌀 Springs Workbench for FreeCAD
+# 🌀 Spring Workbench for FreeCAD
 
 Design and analyze **compression**, **extension**, and **torsion** springs directly inside FreeCAD.
 
-![Springs Workbench Toolbar](Resources/icons/Springs.svg)
+![Spring Workbench Toolbar](Resources/icons/workbench.svg)
 
 ---
 
@@ -23,20 +23,20 @@ Design and analyze **compression**, **extension**, and **torsion** springs direc
 
 ### Option 1 – Addon Manager (recommended)
 1. Open **Tools → Addon Manager** in FreeCAD.  
-2. Search for **“Springs”**.  
+2. Search for **“Spring”**.
 3. Click **Install**.  
 4. Restart FreeCAD.
 
 ### Option 2 – Manual Install
 1. Clone or download this repository.  
-2. Copy the `FreeCAD-Springs` folder into your FreeCAD `Mod/` directory.  
+2. Copy the `FreeCAD-Springs` folder into your FreeCAD `Mod/` directory (renaming it to `Spring` is recommended).
 3. Restart FreeCAD.
 
 ---
 
 ## 🚀 Usage
 
-1. Switch to the **Springs Workbench**.
+1. Switch to the **Spring Workbench**.
 2. Use the toolbar or menu to create:
    - **Compression Spring**
    - **Extension Spring**
@@ -49,19 +49,22 @@ Design and analyze **compression**, **extension**, and **torsion** springs direc
 
 ## ⚙️ Preferences in code
 
-The preference page (``Edit → Preferences → Springs``) stores solver options,
+The preference page (``Edit → Preferences → Spring``) stores solver options,
 weights, and UI toggles inside FreeCAD's parameter system. Modules can query
 these values through helpers in ``Features.Utils``:
 
 ```python
-from Springs.Features import Utils
+try:
+    from Spring.Features import Utils
+except ModuleNotFoundError:  # FreeCAD versions prior to the rename
+    from Springs.Features import Utils
 
 max_iterations = Utils.preference_int("maxit", 600)
 objective_minimum = Utils.preference_float("objmin", 1.0e-5)
 show_units = Utils.preference_bool("show_units", True)
 ```
 
-Each helper reads from ``BaseApp/Preferences/Mod/Springs`` and falls back to
+Each helper reads from ``BaseApp/Preferences/Mod/Spring`` and falls back to
 the supplied default if a setting has not been stored yet.
 
 ---
@@ -97,7 +100,7 @@ the supplied default if a setting has not been stored yet.
     ├── LICENSE
     ├── Preferences
     │   ├── __init__.py
-    │   └── SpringsPreferencePage.py
+    │   └── SpringPreferencePage.py
     ├── README.md
     ├── Resources
     │   └── icons
@@ -108,7 +111,7 @@ the supplied default if a setting has not been stored yet.
     │       ├── torsion.svg
     │       └── workbench.svg
     └── Tests
-        └── test_Springs.py
+        └── test_Spring.py
 
 ---
 
@@ -119,7 +122,7 @@ application modules are available to the interpreter:
 
 ```bash
 /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd \
-  ~/Library/Application\ Support/FreeCAD/Mod/Springs/Tests/test_Springs.py
+  ~/Library/Application\ Support/FreeCAD/Mod/Spring/Tests/test_Spring.py
 ```
 
 ---

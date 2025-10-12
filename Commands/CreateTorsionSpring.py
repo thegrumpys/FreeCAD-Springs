@@ -23,4 +23,4 @@ class CreateTorsionSpring:
 
 def register():
     """Registers this command with FreeCAD"""
-    Gui.addCommand("Springs_CreateTorsionSpring", CreateTorsionSpring())
+    Gui.addCommand("Spring_CreateTorsionSpring", CreateTorsionSpring())

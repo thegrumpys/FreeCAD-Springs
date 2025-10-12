@@ -1,11 +1,20 @@
 import FreeCAD, Part, unittest, math, os, tempfile
 from types import SimpleNamespace
-from Springs.Features.Compression import Spring as CompressionSpring
-from Springs.Features.Compression import Utils as CompressionUtils
-from Springs.Features.Extension import Spring as ExtensionSpring
-from Springs.Features.Extension import Utils as ExtensionUtils
-from Springs.Features.Torsion import Spring as TorsionSpring
-from Springs.Features.Torsion import Utils as TorsionUtils
+
+try:
+    from Spring.Features.Compression import Spring as CompressionSpring
+    from Spring.Features.Compression import Utils as CompressionUtils
+    from Spring.Features.Extension import Spring as ExtensionSpring
+    from Spring.Features.Extension import Utils as ExtensionUtils
+    from Spring.Features.Torsion import Spring as TorsionSpring
+    from Spring.Features.Torsion import Utils as TorsionUtils
+except ModuleNotFoundError:
+    from Springs.Features.Compression import Spring as CompressionSpring
+    from Springs.Features.Compression import Utils as CompressionUtils
+    from Springs.Features.Extension import Spring as ExtensionSpring
+    from Springs.Features.Extension import Utils as ExtensionUtils
+    from Springs.Features.Torsion import Spring as TorsionSpring
+    from Springs.Features.Torsion import Utils as TorsionUtils
 
 
 def _expected_compression_rate(outer_diameter, wire_diameter, coils):
@@ -44,7 +53,7 @@ def _expected_torsion_rate(outer_diameter, wire_diameter, coils):
     return obj.Rate
 
 
-print("✅ test_Springs.py started")
+print("✅ test_Spring.py started")
 
 # -----------------------------------------------------------------------------
 # Utility helpers
@@ -86,7 +95,7 @@ def _check_properties(obj, expect):
 # -----------------------------------------------------------------------------
 # Test class
 # -----------------------------------------------------------------------------
-class TestSprings(unittest.TestCase):
+class TestSpring(unittest.TestCase):
     def setUp(self):
         self.doc = FreeCAD.newDocument("SpringTest")
 
