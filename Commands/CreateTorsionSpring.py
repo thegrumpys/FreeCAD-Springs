@@ -18,8 +18,8 @@ class CreateTorsionSpring:
         TorsionSpring.make()
 
     def IsActive(self):
-        """Keep the command always available"""
-        return True
+        """Enable only when a document is active"""
+        return Gui.ActiveDocument is not None
 
 def register():
     """Registers this command with FreeCAD"""

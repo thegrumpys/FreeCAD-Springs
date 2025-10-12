@@ -61,7 +61,9 @@ class CompressionSpring:
 
 
 def make():
-    doc = FreeCAD.ActiveDocument or FreeCAD.newDocument()
+    doc = FreeCAD.ActiveDocument
+    if doc is None:
+        return None
     obj = doc.addObject("Part::FeaturePython", "CompressionSpring")
     CompressionSpring(obj)
     doc.recompute()

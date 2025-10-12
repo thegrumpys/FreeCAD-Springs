@@ -61,7 +61,9 @@ class TorsionSpring:
 
 
 def make():
-    doc = FreeCAD.ActiveDocument or FreeCAD.newDocument()
+    doc = FreeCAD.ActiveDocument
+    if doc is None:
+        return None
     obj = doc.addObject("Part::FeaturePython", "TorsionSpring")
     TorsionSpring(obj)
     doc.recompute()
