@@ -73,14 +73,6 @@ def spring_wire_length(mean_diameter, pitch, coils):
     """Length of wire forming the helix."""
     return math.sqrt((math.pi * mean_diameter)**2 + pitch**2) * coils
 
-def spring_rate(G, wire_diameter, mean_diameter, coils):
-    """Return spring rate (N/mm) using the classic formula."""
-    d = wire_diameter
-    D = mean_diameter
-    n = coils
-    k = (G * d**4) / (8 * n * (D**3))
-    return k / 1000.0  # Convert from N/m to N/mm for convenience
-
 def spring_solid_length(wire_diameter, coils):
     """Total length when fully compressed."""
     return wire_diameter * (coils + 1)

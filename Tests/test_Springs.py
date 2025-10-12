@@ -1,7 +1,26 @@
 import FreeCAD, Part, unittest, math, os, tempfile
 from Springs.Features.Compression import Spring as CompressionSpring
+from Springs.Features.Compression import Utils as CompressionUtils
 from Springs.Features.Extension import Spring as ExtensionSpring
+from Springs.Features.Extension import Utils as ExtensionUtils
 from Springs.Features.Torsion import Spring as TorsionSpring
+from Springs.Features.Torsion import Utils as TorsionUtils
+
+
+def _expected_compression_rate(outer_diameter, wire_diameter, coils):
+    mean_diameter = outer_diameter - wire_diameter
+    return CompressionUtils.spring_rate(wire_diameter / 1000.0, mean_diameter / 1000.0, coils)
+
+
+def _expected_extension_rate(outer_diameter, wire_diameter, coils):
+    mean_diameter = outer_diameter - wire_diameter
+    return ExtensionUtils.spring_rate(wire_diameter / 1000.0, mean_diameter / 1000.0, coils)
+
+
+def _expected_torsion_rate(outer_diameter, wire_diameter, coils):
+    mean_diameter = outer_diameter - wire_diameter
+    return TorsionUtils.spring_rate(wire_diameter / 1000.0, mean_diameter / 1000.0, coils)
+
 
 print("✅ test_Springs.py started")
 
@@ -80,7 +99,9 @@ class TestSprings(unittest.TestCase):
             "OuterDiameterAtFree": 20.0,
             "WireDiameter": 2.0,
             "Pitch": 2.5,
-            "LengthAtFree": 25.0
+            "LengthAtFree": 25.0,
+            "CoilsTotal": 10.0,
+            "Rate": _expected_compression_rate(20.0, 2.0, 10.0)
         })
 
     def test_extension_spring(self):
@@ -90,7 +111,9 @@ class TestSprings(unittest.TestCase):
             "OuterDiameterAtFree": 20.0,
             "WireDiameter": 2.0,
             "Pitch": 2.5,
-            "LengthAtFree": 25.0
+            "LengthAtFree": 25.0,
+            "CoilsTotal": 10.0,
+            "Rate": _expected_extension_rate(20.0, 2.0, 10.0)
         })
 
     def test_torsion_spring(self):
@@ -100,7 +123,9 @@ class TestSprings(unittest.TestCase):
             "OuterDiameterAtFree": 20.0,
             "WireDiameter": 2.0,
             "Pitch": 2.5,
-            "LengthAtFree": 25.0
+            "LengthAtFree": 25.0,
+            "CoilsTotal": 10.0,
+            "Rate": _expected_torsion_rate(20.0, 2.0, 10.0)
         })
 
     def test_end_type_secondary_properties(self):
