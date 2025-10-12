@@ -14,7 +14,7 @@ def _as_float(value, default):
 
 
 def update_properties(obj) -> None:
-    """Update ``obj.Rate`` based on the object's geometry in N/mm."""
+    """Update properties based on the object's properties."""
 
     rate = 0.0
 

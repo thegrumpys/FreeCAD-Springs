@@ -184,7 +184,7 @@ def ensure_end_type_properties(obj, table: Optional[EndTypeTable]) -> Optional[s
         return None
 
     if not hasattr(obj, "EndType"):
-        obj.addProperty("App::PropertyEnumeration", "EndType", "Spring", "")
+        obj.addProperty("App::PropertyEnumeration", "EndType", "Global", "")
 
     # Assign available options and choose a valid current value
     obj.EndType = table.options
