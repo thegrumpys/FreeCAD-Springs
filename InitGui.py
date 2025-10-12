@@ -17,22 +17,13 @@ class SpringWorkbench(Gui.Workbench):
 
     def Initialize(self):
         # Import command modules *here*, so they're always defined when activating
-        try:
-            from Spring.Commands import (
-                CreateCompressionSpring,
-                CreateExtensionSpring,
-                CreateTorsionSpring,
-                DisplaySpringInfo,
-            )
-            from Spring.Preferences.SpringPreferencePage import SpringPreferencePage
-        except ModuleNotFoundError:
-            from Springs.Commands import (
-                CreateCompressionSpring,
-                CreateExtensionSpring,
-                CreateTorsionSpring,
-                DisplaySpringInfo,
-            )
-            from Springs.Preferences.SpringPreferencePage import SpringPreferencePage
+        from Spring.Commands import (
+            CreateCompressionSpring,
+            CreateExtensionSpring,
+            CreateTorsionSpring,
+            DisplaySpringInfo,
+        )
+        from Spring.Preferences.SpringPreferencePage import SpringPreferencePage
 
         # Register commands
         CreateCompressionSpring.register()

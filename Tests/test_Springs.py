@@ -1,21 +1,12 @@
 import FreeCAD, Part, unittest, math, os, tempfile
 from types import SimpleNamespace
 
-try:
-    from Spring.Features.Compression import Spring as CompressionSpring
-    from Spring.Features.Compression import Utils as CompressionUtils
-    from Spring.Features.Extension import Spring as ExtensionSpring
-    from Spring.Features.Extension import Utils as ExtensionUtils
-    from Spring.Features.Torsion import Spring as TorsionSpring
-    from Spring.Features.Torsion import Utils as TorsionUtils
-except ModuleNotFoundError:
-    from Springs.Features.Compression import Spring as CompressionSpring
-    from Springs.Features.Compression import Utils as CompressionUtils
-    from Springs.Features.Extension import Spring as ExtensionSpring
-    from Springs.Features.Extension import Utils as ExtensionUtils
-    from Springs.Features.Torsion import Spring as TorsionSpring
-    from Springs.Features.Torsion import Utils as TorsionUtils
-
+from Spring.Features.Compression import Spring as CompressionSpring
+from Spring.Features.Compression import Utils as CompressionUtils
+from Spring.Features.Extension import Spring as ExtensionSpring
+from Spring.Features.Extension import Utils as ExtensionUtils
+from Spring.Features.Torsion import Spring as TorsionSpring
+from Spring.Features.Torsion import Utils as TorsionUtils
 
 def _expected_compression_rate(outer_diameter, wire_diameter, coils):
     obj = SimpleNamespace(

@@ -1,8 +1,5 @@
 import FreeCADGui as Gui
-try:
-    from Spring.Dialogs.SpringInfoDialog import SpringInfoDialog
-except ModuleNotFoundError:  # Backwards compatibility
-    from Springs.Dialogs.SpringInfoDialog import SpringInfoDialog
+from Spring.Dialogs.SpringInfoDialog import SpringInfoDialog
 
 class DisplaySpringInfo:
     def GetResources(self):

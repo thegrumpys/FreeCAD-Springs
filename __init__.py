@@ -1,1 +1,1 @@
-"""Compatibility shim for the Spring workbench package."""import sys# Ensure both the legacy ("Springs") and the new ("Spring") module names# resolve to the same package instance, regardless of the load order.sys.modules.setdefault("Spring", sys.modules[__name__])sys.modules.setdefault("Springs", sys.modules[__name__])
+#Spring/__init__.py

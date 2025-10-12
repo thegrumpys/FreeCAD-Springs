@@ -29,7 +29,7 @@ Design and analyze **compression**, **extension**, and **torsion** springs direc
 
 ### Option 2 – Manual Install
 1. Clone or download this repository.  
-2. Copy the `FreeCAD-Springs` folder into your FreeCAD `Mod/` directory (renaming it to `Spring` is recommended).
+2. Copy the `FreeCAD-Spring` folder into your FreeCAD `Mod/` directory (renaming it to `Spring` is recommended).
 3. Restart FreeCAD.
 
 ---
@@ -54,10 +54,7 @@ weights, and UI toggles inside FreeCAD's parameter system. Modules can query
 these values through helpers in ``Features.Utils``:
 
 ```python
-try:
-    from Spring.Features import Utils
-except ModuleNotFoundError:  # FreeCAD versions prior to the rename
-    from Springs.Features import Utils
+from Spring.Features import Utils
 
 max_iterations = Utils.preference_int("maxit", 600)
 objective_minimum = Utils.preference_float("objmin", 1.0e-5)
@@ -71,7 +68,7 @@ the supplied default if a setting has not been stored yet.
 
 ## 📁 Repository Structure (via `tree -I '__pycache__'`)
 
-    FreeCAD-Springs/
+    FreeCAD-Spring/
     ├── __init__.py
     ├── Commands
     │   ├── __init__.py
