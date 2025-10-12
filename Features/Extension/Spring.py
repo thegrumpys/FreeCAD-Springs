@@ -11,12 +11,6 @@ ENDTYPES = CoreUtils.load_end_type_table(Path(__file__).parent / "endtypes.json"
 
 class ExtensionSpring:
     def __init__(self, obj):
-#        CoreUtils.add_property(obj, "EndType", "", "App::PropertyEnumeration", "Global")
-        CoreUtils.add_property(obj, "InactiveCoils", 0.0, "App::PropertyFloat", "Global")
-        CoreUtils.add_property(obj, "EndDia", 0.0, "App::PropertyFloat", "Global")
-        CoreUtils.add_property(obj, "HookDefAll", 0.0, "App::PropertyFloat", "Global")
-        CoreUtils.add_property(obj, "TorsionModulus", SpringUtils.MUSIC_WIRE_SHEAR_MODULUS, "App::PropertyFloat", "Global")
-
         CoreUtils.add_property(obj, "OuterDiameterAtFree", 20.0, "App::PropertyFloat", "Independent")
         CoreUtils.add_property(obj, "WireDiameter", 2.0, "App::PropertyFloat", "Independent")
         CoreUtils.add_property(obj, "CoilsTotal", 10, "App::PropertyFloat", "Independent")
@@ -26,6 +20,15 @@ class ExtensionSpring:
         obj.setEditorMode("Pitch", 1)
         CoreUtils.add_property(obj, "Rate", 0.0, "App::PropertyFloat", "Dependent")
         obj.setEditorMode("Rate", 1)
+
+#        CoreUtils.add_property(obj, "EndType", "", "App::PropertyEnumeration", "Global")
+        CoreUtils.add_property(obj, "InactiveCoils", 0.0, "App::PropertyFloat", "Global")
+        obj.setEditorMode("InactiveCoils", 1)
+        CoreUtils.add_property(obj, "EndDiameter", 0.0, "App::PropertyFloat", "Global")
+        obj.setEditorMode("EndDiameter", 1)
+        CoreUtils.add_property(obj, "HookDeflectionAllowance", 0.0, "App::PropertyFloat", "Global")
+        obj.setEditorMode("HookDeflectionAllowance", 1)
+        CoreUtils.add_property(obj, "TorsionModulus", SpringUtils.MUSIC_WIRE_SHEAR_MODULUS, "App::PropertyFloat", "Global")
 
         selected = CoreUtils.ensure_end_type_properties(obj, ENDTYPES)
         CoreUtils.apply_end_type_properties(obj, ENDTYPES, selected)
