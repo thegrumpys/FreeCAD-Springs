@@ -62,9 +62,9 @@ def update_properties(obj) -> None:
     obj.StressAtDeflection1 = s_f * obj.ForceAtDeflection1
     obj.StressAtDeflection2 = s_f * obj.ForceAtDeflection2
     obj.StressAtSolid = s_f * obj.ForceAtSolid
-#    if obj.PropCalcMethod == "Use values from material table":
-#        obj.Tensile = obj.slope_term * (math.log10(obj.WireDiameter) - obj.const_term) + obj.tensile_010
-#    elif obj.PropCalcMethod == "Use values from material table":
-#        pass # tbd
+    if obj.getEnumerations("PropCalcMethod").index(obj.PropCalcMethod) == 1:
+        obj.Tensile = obj.slope_term * (math.log10(obj.WireDiameter) - obj.const_term) + obj.tensile_010
+    elif obj.getEnumerations("PropCalcMethod").index(obj.PropCalcMethod) <= 2:
+        pass # tbd
 
     #=====================================

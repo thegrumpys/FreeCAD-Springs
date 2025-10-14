@@ -34,8 +34,7 @@ def add_property(obj, name, default, typ="App::PropertyFloat", group="Spring", m
         obj.addProperty(typ, name, group, "")
         if default is not None:
             setattr(obj, name, default)
-        if mode == 1:
-            obj.setEditorMode(name, 1)
+        obj.setEditorMode(name, mode)
         
 def helix_solid(radius, pitch, height, wire_radius):
     """Create a helical solid (coil) from geometric parameters."""
