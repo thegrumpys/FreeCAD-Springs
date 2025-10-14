@@ -4,7 +4,6 @@ from __future__ import annotations
 
 MUSIC_WIRE_SHEAR_MODULUS = 79.3e9  # Pascals
 
-
 def _as_float(value, default):
     try:
         candidate = getattr(value, "Value", value)
@@ -12,6 +11,8 @@ def _as_float(value, default):
     except (TypeError, ValueError):
         return float(default)
 
+def update_globals(obj) -> None:
+    """Update global properties based on the object's global properties."""
 
 def update_properties(obj) -> None:
     """Update properties based on the object's properties."""
@@ -19,7 +20,7 @@ def update_properties(obj) -> None:
     rate = 0.0
 
     try:
-        outer = float(obj.OuterDiameterAtFree)
+        outer = float(obj.OutsideDiameterAtFree)
         wire = float(obj.WireDiameter)
         coils = float(obj.CoilsTotal)
         shear_modulus = _as_float(getattr(obj, "TorsionModulus", MUSIC_WIRE_SHEAR_MODULUS), MUSIC_WIRE_SHEAR_MODULUS)

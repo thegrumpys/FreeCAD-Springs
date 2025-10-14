@@ -1,5 +1,5 @@
 [
-    [ "EndType","InactiveCoils","EndDia","HookDefAll" ],
+    [ "EndType","CoilsInactive","EndDia","HookDefAll" ],
     [ "Full_Loop",        0.0,     1.00,      0.4],
     [ "75%_Loop",         0.0,     0.75,      0.2],
     [ "Full_Hook",        0.0,     1.00,      0.4],

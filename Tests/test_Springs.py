@@ -10,7 +10,7 @@ from Spring.Features.Torsion import Utils as TorsionUtils
 
 def _expected_compression_rate(outer_diameter, wire_diameter, coils):
     obj = SimpleNamespace(
-        OuterDiameterAtFree=outer_diameter,
+        OutsideDiameterAtFree=outer_diameter,
         WireDiameter=wire_diameter,
         CoilsTotal=coils,
         TorsionModulus=CompressionUtils.MUSIC_WIRE_SHEAR_MODULUS,
@@ -22,7 +22,7 @@ def _expected_compression_rate(outer_diameter, wire_diameter, coils):
 
 def _expected_extension_rate(outer_diameter, wire_diameter, coils):
     obj = SimpleNamespace(
-        OuterDiameterAtFree=outer_diameter,
+        OutsideDiameterAtFree=outer_diameter,
         WireDiameter=wire_diameter,
         CoilsTotal=coils,
         TorsionModulus=ExtensionUtils.MUSIC_WIRE_SHEAR_MODULUS,
@@ -34,7 +34,7 @@ def _expected_extension_rate(outer_diameter, wire_diameter, coils):
 
 def _expected_torsion_rate(outer_diameter, wire_diameter, coils):
     obj = SimpleNamespace(
-        OuterDiameterAtFree=outer_diameter,
+        OutsideDiameterAtFree=outer_diameter,
         WireDiameter=wire_diameter,
         CoilsTotal=coils,
         ElasticModulus=TorsionUtils.MUSIC_WIRE_YOUNG_MODULUS,
@@ -102,7 +102,7 @@ class TestSpring(unittest.TestCase):
         self.assertAlmostEqual(bb.ZLength, expected["LengthAtFree"], delta=max(1.0, expected["WireDiameter"] * 3))
 
         coils_calc = expected["LengthAtFree"] / expected["Pitch"]
-        circumference = math.pi * expected["OuterDiameterAtFree"]
+        circumference = math.pi * expected["OutsideDiameterAtFree"]
         length_per_turn = math.sqrt(circumference ** 2 + expected["Pitch"] ** 2)
         total_length = coils_calc * length_per_turn
         self.assertGreater(total_length, 0)
@@ -118,7 +118,7 @@ class TestSpring(unittest.TestCase):
         spring = CompressionSpring.make()
         self.doc.recompute()
         self._analyze_spring(spring, {
-            "OuterDiameterAtFree": 20.0,
+            "OutsideDiameterAtFree": 20.0,
             "WireDiameter": 2.0,
             "Pitch": 2.5,
             "LengthAtFree": 25.0,
@@ -131,7 +131,7 @@ class TestSpring(unittest.TestCase):
         spring = ExtensionSpring.make()
         self.doc.recompute()
         self._analyze_spring(spring, {
-            "OuterDiameterAtFree": 20.0,
+            "OutsideDiameterAtFree": 20.0,
             "WireDiameter": 2.0,
             "Pitch": 2.5,
             "LengthAtFree": 25.0,
@@ -144,7 +144,7 @@ class TestSpring(unittest.TestCase):
         spring = TorsionSpring.make()
         self.doc.recompute()
         self._analyze_spring(spring, {
-            "OuterDiameterAtFree": 20.0,
+            "OutsideDiameterAtFree": 20.0,
             "WireDiameter": 2.0,
             "Pitch": 2.5,
             "LengthAtFree": 25.0,
@@ -160,14 +160,14 @@ class TestSpring(unittest.TestCase):
         if isinstance(end_type, (list, tuple)):
             end_type = end_type[0] if end_type else None
         self.assertEqual(end_type, "Open")
-        self.assertTrue(hasattr(spring, "InactiveCoils"))
-        self.assertAlmostEqual(getattr(spring, "InactiveCoils", 0.0), 0.0)
+        self.assertTrue(hasattr(spring, "CoilsInactive"))
+        self.assertAlmostEqual(getattr(spring, "CoilsInactive", 0.0), 0.0)
         self.assertTrue(hasattr(spring, "AddCoilsAtSolid"))
         self.assertAlmostEqual(getattr(spring, "AddCoilsAtSolid", 0.0), 1.0)
 
         spring.EndType = "Closed"
         self.doc.recompute()
-        self.assertAlmostEqual(getattr(spring, "InactiveCoils", 0.0), 2.0)
+        self.assertAlmostEqual(getattr(spring, "CoilsInactive", 0.0), 2.0)
         self.assertAlmostEqual(getattr(spring, "AddCoilsAtSolid", 0.0), 1.0)
 
     def test_parametric_sweep(self):
@@ -176,12 +176,12 @@ class TestSpring(unittest.TestCase):
             for p in [1.5, 2.5, 3.5]:
                 h = p * 10
                 spring = CompressionSpring.make()
-                spring.OuterDiameterAtFree = d
+                spring.OutsideDiameterAtFree = d
                 spring.Pitch = p
                 spring.LengthAtFree = h
                 self.doc.recompute()
                 self._analyze_spring(spring, {
-                    "OuterDiameterAtFree": d,
+                    "OutsideDiameterAtFree": d,
                     "WireDiameter": 2.0,
                     "Pitch": p,
                     "LengthAtFree": h

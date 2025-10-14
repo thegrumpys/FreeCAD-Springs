@@ -1,47 +1,45 @@
 import FreeCAD, Part
-import json
-import math
+import sys, os, json, math, time
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-
 SPRING_PREFERENCES_PATH = "User parameter:BaseApp/Preferences/Mod/Spring"
-
 
 def _spring_preferences() -> FreeCAD.ParamGet:
     """Return the ParamGet instance for the Spring preference group."""
 
     return FreeCAD.ParamGet(SPRING_PREFERENCES_PATH)
 
-
 def preference_int(name: str, default: int) -> int:
     """Read an integer preference value with a fallback default."""
 
     return _spring_preferences().GetInt(name, default)
-
 
 def preference_float(name: str, default: float) -> float:
     """Read a floating-point preference value with a fallback default."""
 
     return _spring_preferences().GetFloat(name, default)
 
-
 def preference_bool(name: str, default: bool) -> bool:
     """Read a boolean preference value with a fallback default."""
 
     return _spring_preferences().GetBool(name, default)
 
-def add_property(obj, name, default, typ="App::PropertyFloat", group="Spring"):
+def add_property(obj, name, default, typ="App::PropertyFloat", group="Spring", mode=0):
     """Safely add a FreeCAD property if it doesn't already exist."""
+#    FreeCAD.Console.PrintMessage("add_property"+" obj="+str(obj)+" name="+name+" default="+str(default)+" typ="+typ+" group="+group+" mode="+str(mode)+"\n")
     if not hasattr(obj, name):
         obj.addProperty(typ, name, group, "")
-        setattr(obj, name, default)
-
-
+        if default is not None:
+            setattr(obj, name, default)
+        if mode == 1:
+            obj.setEditorMode(name, 1)
+        
 def helix_solid(radius, pitch, height, wire_radius):
     """Create a helical solid (coil) from geometric parameters."""
+#    FreeCAD.Console.PrintMessage("helix_solid"+" radius="+str(radius)+" pitch="+str(pitch)+" height="+str(height)+" wire_radius="+str(wire_radius)+"\n")
     helix = Part.makeHelix(pitch, height, radius)
     helix_wire = helix if isinstance(helix, Part.Wire) else Part.Wire([helix])
     helix_edge = helix_wire.Edges[0]
@@ -76,154 +74,69 @@ def spring_wire_length(mean_diameter, pitch, coils):
 def spring_solid_length(wire_diameter, coils):
     """Total length when fully compressed."""
     return wire_diameter * (coils + 1)
+        
+_ENUM_CACHE = {}  # { name: (header, rows, mtime) }
 
-
-# -----------------------------------------------------------------------------
-# End type helpers
-# -----------------------------------------------------------------------------
-
-
-@dataclass(frozen=True)
-class EndTypeProperty:
-    """Metadata describing a property managed by an end-type table."""
-
-    key: str
-    name: str
-    group: str
-
-
-@dataclass
-class EndTypeTable:
-    """Structured representation of an end-type configuration file."""
-
-    name: str
-    options: List[str]
-    properties: List[EndTypeProperty]
-    values: Dict[str, Dict[str, Any]]
-
-    @property
-    def default(self) -> Optional[str]:
-        return self.options[0] if self.options else None
-
-
-def _parse_property_key(raw: str) -> EndTypeProperty:
-    """Translate a header entry into a property descriptor."""
-
-    if "@" in raw:
-        name, group = raw.split("@", 1)
-    else:
-        name, group = raw, "Spring"
-    return EndTypeProperty(key=raw, name=name, group=group)
-
-
-def _coerce_property_value(value: Any) -> Any:
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, (int, float)):
-        return float(value)
-    if value is None:
-        return None
-    return str(value)
-
-
-def _property_type_for(value: Any) -> str:
-    if isinstance(value, bool):
-        return "App::PropertyBool"
-    if isinstance(value, (int, float)):
-        return "App::PropertyFloat"
-    return "App::PropertyString"
-
-
-@lru_cache(maxsize=None)
-def load_end_type_table(path: Union[str, Path]) -> Optional[EndTypeTable]:
-    """Load an end-type definition JSON file.
-
-    Parameters
-    ----------
-    path: Union[str, Path]
-        Location of the JSON configuration file describing available end types.
+def load_enum_table(type, enum_name):
     """
+    Load <enum_name>.json once and return (header, rows).
+    Cached after first load for performance.
+    """
+    FreeCAD.Console.PrintMessage("load_enum_table"+" enum_name="+enum_name+"\n")
+    global _ENUM_CACHE
 
-    resolved = Path(path)
-    if not resolved.exists():
-        return None
+    # If cached, return immediately
+    if enum_name in _ENUM_CACHE:
+        return _ENUM_CACHE[enum_name]
+
+    # Locate JSON relative to this script
+    base_dir = os.path.dirname(__file__)
+    path = os.path.join(base_dir, f"./{type}/{enum_name}.json")
+    path = os.path.abspath(path)
+    mtime = os.path.getmtime(path) if os.path.exists(path) else 0
 
     try:
-        data = json.loads(resolved.read_text())
-    except Exception:
-        return None
+        with open(path, "r") as f:
+            data = json.load(f)
 
-    if not data:
-        return None
+        header, rows = data[0], data[1:]
+        _ENUM_CACHE[enum_name] = (header, rows, mtime)
+        FreeCAD.Console.PrintMessage(f"[enum_loader] Reloaded {enum_name} (modified)\n")
 
-    header, *rows = data
-    if not header or header[0] != "EndType":
-        return None
+    except Exception as e:
+        FreeCAD.Console.PrintError(f"[enum_loader] Failed to load {enum_name}: {e}\n")
+        header, rows = [], []
+        _ENUM_CACHE[enum_name] = (header, rows, mtime)
 
-    props = [_parse_property_key(h) for h in header[1:]]
-    options: List[str] = []
-    values: Dict[str, Dict[str, Any]] = {}
+    return header, rows
 
-    for row in rows:
-        if not row:
-            continue
-        option = str(row[0])
-        options.append(option)
-        mapping = {
-            prop.key: row[i + 1] if i + 1 < len(row) else None
-            for i, prop in enumerate(props)
-        }
-        values[option] = mapping
+def clear_enum_cache():
+    """Clear all cached enumeration data (for dev/debug use)."""
+    FreeCAD.Console.PrintMessage("clear_enum_cache"+"\n")
+    global _ENUM_CACHE
+    _ENUM_CACHE.clear()
+    FreeCAD.Console.PrintMessage("[enum_loader] Cache cleared\n")
+    
+def reload_enum(fp, type, name):
+    """
+    Rebuild a single enumeration property from its JSON definition.
+    Keeps the current value if it is still valid.
+    """
+    FreeCAD.Console.PrintMessage("reload_enum"+" fp="+str(fp)+" type="+type+" name="+name+"\n")
 
-    return EndTypeTable(name="EndType", options=options, properties=props, values=values)
-
-
-def ensure_end_type_properties(obj, table: Optional[EndTypeTable]) -> Optional[str]:
-    """Create properties defined by an end-type table and return the selection."""
-
-    if table is None or not table.options:
-        return None
-
-    if not hasattr(obj, "EndType"):
-        obj.addProperty("App::PropertyEnumeration", "EndType", "Global", "")
-
-    # Assign available options and choose a valid current value
-    obj.EndType = table.options
-    current = obj.EndType
-    if isinstance(current, (list, tuple)):
-        current = current[0] if current else table.default
-
-    if current not in table.values:
-        current = table.default
-    if current is None:
-        return None
-
-    obj.EndType = current
-
-    defaults = table.values.get(current, {})
-    for prop in table.properties:
-        default_value = defaults.get(prop.key)
-        typ = _property_type_for(default_value)
-        coerced = _coerce_property_value(default_value)
-        add_property(obj, prop.name, coerced, typ=typ, group=prop.group)
-
-    return current
-
-
-def apply_end_type_properties(obj, table: Optional[EndTypeTable], selected: Optional[str]) -> None:
-    """Update dependent properties when the end type changes."""
-
-    if table is None or not selected:
+    header, rows = load_enum_table(type, name)
+    if not rows:
+        FreeCAD.Console.PrintWarning(f"[reload_enum] No data for {name}\n")
         return
 
-    values = table.values.get(selected)
-    if not values:
-        return
+    enum_values = [r[0] for r in rows]
+    current = getattr(fp, name, None)
+    setattr(fp, name, enum_values)
 
-    for prop in table.properties:
-        if not hasattr(obj, prop.name):
-            continue
-        value = _coerce_property_value(values.get(prop.key))
-        if value is None:
-            continue
-        setattr(obj, prop.name, value)
+    # Restore previous selection if still valid
+    if current in enum_values:
+        setattr(fp, name, current)
+    else:
+        setattr(fp, name, enum_values[0])
+
+    FreeCAD.Console.PrintMessage(f"[reload_enum] {name} reloaded with {len(enum_values)} choices\n")

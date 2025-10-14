@@ -4,13 +4,15 @@ from __future__ import annotations
 
 MUSIC_WIRE_YOUNG_MODULUS = 207e9  # Pascals
 
-
 def _as_float(value, default):
     try:
         candidate = getattr(value, "Value", value)
         return float(candidate)
     except (TypeError, ValueError):
         return float(default)
+
+def update_globals(obj) -> None:
+    """Update global properties based on the object's global properties."""
 
 
 def update_properties(obj) -> None:
@@ -19,7 +21,7 @@ def update_properties(obj) -> None:
     rate = 0.0
 
     try:
-        outer = float(obj.OuterDiameterAtFree)
+        outer = float(obj.OutsideDiameterAtFree)
         wire = float(obj.WireDiameter)
         coils = float(obj.CoilsTotal)
         young_modulus = _as_float(getattr(obj, "ElasticModulus", MUSIC_WIRE_YOUNG_MODULUS), MUSIC_WIRE_YOUNG_MODULUS)

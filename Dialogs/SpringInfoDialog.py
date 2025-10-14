@@ -16,7 +16,7 @@ class SpringInfoDialog(QtWidgets.QDialog):
         self.table.setColumnCount(8)
         self.table.setHorizontalHeaderLabels([
             "Name", "Outer Ø @ Free (mm)", "Wire Ø (mm)", "Pitch (mm)",
-            "Length @ Free (mm)", "Coils", "Wire Len (mm)", "Rate (N/mm)"
+            "Length @ Free (mm)", "Total Coils", "Wire Len (mm)", "Rate (N/mm)"
         ])
         self._populate_table()
         layout.addWidget(self.table)
@@ -35,17 +35,18 @@ class SpringInfoDialog(QtWidgets.QDialog):
     def _populate_table(self):
         self.table.setRowCount(len(self.objs))
         for i, obj in enumerate(self.objs):
-            outer_d = getattr(obj, "OuterDiameterAtFree", 20.0)
+            outer_d = getattr(obj, "OutsideDiameterAtFree", 20.0)
             wire_d = getattr(obj, "WireDiameter", 2.0)
-            pitch = getattr(obj, "Pitch", 2.5)
+            inactive_coils = getattr(obj, "CoilsInactive", 2.0)
             length_free = getattr(obj, "LengthAtFree", 25.0)
-            coils = Utils.spring_coils(length_free, pitch)
+            pitch = (length_free - inactive_coils) / wire_d
+            total_coils = getattr(obj, "CoilsTotal", 25.0)
             wire_len = Utils.spring_wire_length(outer_d, pitch, coils)
             rate = getattr(obj, "Rate", 0.0)
 
             for j, val in enumerate([
                 obj.Name, f"{outer_d:.2f}", f"{wire_d:.2f}",
-                f"{pitch:.2f}", f"{length_free:.2f}", f"{coils:.2f}",
+                f"{pitch:.2f}", f"{length_free:.2f}", f"{total_coils:.2f}",
                 f"{wire_len:.1f}", f"{rate:.3f}"
             ]):
                 self.table.setItem(i, j, QtWidgets.QTableWidgetItem(val))
@@ -65,7 +66,7 @@ class SpringInfoDialog(QtWidgets.QDialog):
         with open(path, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([
-                "Name", "OuterDiameterAtFree_mm", "WireDiameter_mm", "Pitch_mm",
+                "Name", "OutsideDiameterAtFree_mm", "WireDiameter_mm", "Pitch_mm",
                 "LengthAtFree_mm", "Coils", "WireLength_mm", "SpringRate_N_per_mm"
             ])
             for i in range(self.table.rowCount()):

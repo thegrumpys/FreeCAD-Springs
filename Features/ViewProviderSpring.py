@@ -21,6 +21,15 @@ class ViewProviderSpring:
     def getDefaultDisplayMode(self):
         return "Shaded"
 
+    def getDisplayValue(self, prop):
+        """Return a formatted string for display in the Property Editor."""
+        FreeCAD.Console.PrintMessage("getDisplayValue.prop:"+prop+"\n")
+        if prop == "TorsionModulus" or prop == "ElasticModulus":
+            val = getattr(self.Object, prop)
+            return f"{val:.6e}"  # always scientific notation
+        # Fallback: let FreeCAD handle all other properties normally
+        return None
+
     def setDisplayMode(self, mode):
         return mode
 
