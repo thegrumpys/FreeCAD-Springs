@@ -3,6 +3,8 @@
 from __future__ import annotations
 import math
 
+from .. import Utils as CoreUtils
+
 #    ["matnam",        "astm_fs",   "fedspec","Density",  "ee",   "gg", "kh","t010","t400","pte1","pte2","pte3","pte4","pte6","pte7","pte8","ptb1","ptb2","ptb3","ptb4","ptb6","ptb7","ptb8", "ptb1sr", "ptb1nosr", "ptb2sr", "ptb3sr", "silf", "sihf", "sisr", "wire_dia_filename", "od_free_filename", "dumyc", "longnam"],
 #    ["MUSIC_WIRE",      "A228",    "QQW-470",  0.00786, 207.0, 79.293, 1.00,  2.55,  1.38,    50,    36,    33,    30,    42,    39,    36,    75,    51,    47,    45,     0,     0,     0,       85,        100,       53,       50, 188.92, 310.28, 399.91, "wire_dia_metric",   "od_free_metric",       1,   "Music Wire  (all coatings) -                     ASTM A-228 "],
 
@@ -23,9 +25,37 @@ def _as_float(value, default):
     except (TypeError, ValueError):
         return float(default)
 
+def _enum_value(selection):
+    """Return the active enumeration value from a property selection."""
+
+    if isinstance(selection, (list, tuple)):
+        return selection[0] if selection else None
+    return selection
+
+
+def _enum_index(enum_type: str, name: str, selection) -> int:
+    """Return the 1-based index of an enumeration selection."""
+
+    value = _enum_value(selection)
+    if value is None:
+        return 0
+
+    try:
+        _header, rows = CoreUtils.load_enum_table(enum_type, name)
+    except Exception:
+        return 0
+
+    options = [row[0] for row in rows]
+    try:
+        return options.index(value) + 1
+    except ValueError:
+        return 0
+
+
 def update_globals(obj) -> None:
     """Update global properties based on the object's global properties."""
-    if obj.getEnumeration("PropCalcMethod").index(obj.PropCalcMethod) == 1:
+    method_index = _enum_index("Compression", "PropCalcMethod", getattr(obj, "PropCalcMethod", None))
+    if method_index == 1:
         obj.MaterialType = MUSIC_WIRE_MATERIAL_TYPE
         obj.ASTMFedSpec = MUSIC_WIRE_ASTM_FS + "/" + MUSIC_WIRE_FEDSPEC
         if obj.HotFactorKh < 1.0:
@@ -34,9 +64,9 @@ def update_globals(obj) -> None:
             obj.Process = "Cold Coiled"
         obj.Density = MUSIC_WIRE_DENSITY
         obj.TorsionModulus =  MUSIC_WIRE_SHEAR_MODULUS
-    elif obj.getEnumeration("PropCalcMethod").index(obj.PropCalcMethod) == 2:
+    elif method_index == 2:
         pass #tbd
-    else: # obj.getEnumeration("PropCalcMethod").index(obj.PropCalcMethod) == 3
+    else:  # method_index == 3
         pass #tbd
 
 #def cyclelife_calculation(material_type, life_category, spring_type, tensile, stress_at_deflection1, stress_at_deflection1) -> float:
@@ -128,9 +158,10 @@ def update_properties(obj) -> None:
     obj.StressAtDeflection1 = s_f * obj.ForceAtDeflection1
     obj.StressAtDeflection2 = s_f * obj.ForceAtDeflection2
     obj.StressAtSolid = s_f * obj.ForceAtSolid
-    if obj.getEnumeration("PropCalcMethod").index(obj.PropCalcMethod) == 1:
+    method_index = _enum_index("Compression", "PropCalcMethod", getattr(obj, "PropCalcMethod", None))
+    if method_index == 1:
         obj.Tensile = obj.slope_term * (math.log10(obj.WireDiameter) - obj.const_term) + obj.tensile_010
-    elif obj.getEnumeration("PropCalcMethod").index(obj.PropCalcMethod) <= 2:
+    elif method_index <= 2:
         obj.StressLimitEndurance = obj.Tensile * obj.PercentTensileEndurance / 100.0
         obj.StressLimitStatic  = obj.Tensile * obj.PercentTensileStatic  / 100.0
     if obj.StressAtDeflection2 > 0.0:
@@ -145,7 +176,7 @@ def update_properties(obj) -> None:
     stress_range = (obj.StressAtDeflection2 - obj.StressAtDeflection1) / 2.0
     se2 = obj.StressLimitEndurance / 2.0
     obj.FactorOfSafetyAtCycleLife =  obj.StressLimitStatic / (kc * stress_range * (obj.StressLimitStatic - se2) / se2 + stress_average)
-    if obj.getEnumeration("PropCalcMethod").index(obj.PropCalcMethod) == 1 and obj.Material_Type != 0:
+    if method_index == 1 and obj.Material_Type != 0:
 #        obj.CycleLife = cyclelife_calculation(obj.MaterialType, obj.LifeCategory, 1, obj.Tensile, obj.StressAtDeflection1, obj.StressAtDeflection2)
         obj.Cycle_Life = 0.0
     else:
@@ -153,7 +184,8 @@ def update_properties(obj) -> None:
     sq1 = obj.LengthAtFree
     sq2 = obj.CoilsTotal * math.pi * obj.MeanDiameter
     wire_len_t = math.sqrt(sq1 * sq1 + sq2 * sq2)
-    if obj.getEnumeration("EndType").index(obj.EndType) == 5:
+    end_type_index = _enum_index("Compression", "EndType", getattr(obj, "EndType", None))
+    if end_type_index == 5:
         wire_len_t = wire_len_t - 3.926 * obj.WireDiameter
     obj.Weight = obj.Density * (math.pi * obj.WireDiameter * obj.WireDiameter / 4.0) * wire_len_t
     if obj.LengthAtFree > obj.LengthAtSolid:
