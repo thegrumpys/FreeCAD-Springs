@@ -17,6 +17,27 @@ MUSIC_WIRE_SHEAR_MODULUS = 79.293e9  # Pascals
 MUSIC_WIRE_HOT_FACTOR_KH = 1.0  # Ratio
 MUSIC_WIRE_T010 = 2.55
 MUSIC_WIRE_T400 = 1.38
+MUSIC_WIRE_PTE1 = 50
+MUSIC_WIRE_PTE2 = 36
+MUSIC_WIRE_PTE3 = 33
+MUSIC_WIRE_PTE4 = 30
+MUSIC_WIRE_PTE6 = 42
+MUSIC_WIRE_PTE7 = 39
+MUSIC_WIRE_PTE8 = 36
+MUSIC_WIRE_PTB1 = 75
+MUSIC_WIRE_PTB2 = 51
+MUSIC_WIRE_PTB3 = 47
+MUSIC_WIRE_PTB4 = 45
+MUSIC_WIRE_PTB6 = 0
+MUSIC_WIRE_PTB7 = 0
+MUSIC_WIRE_PTB8 = 0
+MUSIC_WIRE_PTB1SR = 85
+MUSIC_WIRE_PTB1NOSR = 100
+MUSIC_WIRE_PTB2SR = 53
+MUSIC_WIRE_PTB3SR = 50
+MUSIC_WIRE_SILF = 188.92
+MUSIC_WIRE_SIHF = 310.28
+MUSIC_WIRE_SISR = 399.91
 
 def _as_float(value, default):
     try:
@@ -31,7 +52,6 @@ def _enum_value(selection):
     if isinstance(selection, (list, tuple)):
         return selection[0] if selection else None
     return selection
-
 
 def _enum_index(enum_type: str, name: str, selection) -> int:
     """Return the 1-based index of an enumeration selection."""
@@ -51,23 +71,68 @@ def _enum_index(enum_type: str, name: str, selection) -> int:
     except ValueError:
         return 0
 
-
 def update_globals(obj) -> None:
     """Update global properties based on the object's global properties."""
-    method_index = _enum_index("Compression", "PropCalcMethod", getattr(obj, "PropCalcMethod", None))
-    if method_index == 1:
-        obj.MaterialType = MUSIC_WIRE_MATERIAL_TYPE
-        obj.ASTMFedSpec = MUSIC_WIRE_ASTM_FS + "/" + MUSIC_WIRE_FEDSPEC
-        if obj.HotFactorKh < 1.0:
-            obj.Process = "Hot Wound"
-        else :
-            obj.Process = "Cold Coiled"
-        obj.Density = MUSIC_WIRE_DENSITY
-        obj.TorsionModulus =  MUSIC_WIRE_SHEAR_MODULUS
-    elif method_index == 2:
-        pass #tbd
-    else:  # method_index == 3
-        pass #tbd
+    prop_calc_method_index = _enum_index("Compression", "PropCalcMethod", getattr(obj, "PropCalcMethod", None))
+    match prop_calc_method_index:
+        case 2:
+            pass #tbd
+        case 3:
+            pass #tbd
+        case 1 | _:
+            obj.MaterialType = MUSIC_WIRE_MATERIAL_TYPE
+            obj.ASTMFedSpec = MUSIC_WIRE_ASTM_FS + "/" + MUSIC_WIRE_FEDSPEC
+            if obj.HotFactorKh < 1.0:
+                obj.Process = "Hot Wound"
+            else :
+                obj.Process = "Cold Coiled"
+            obj.Density = MUSIC_WIRE_DENSITY
+            obj.TorsionModulus =  MUSIC_WIRE_SHEAR_MODULUS
+            obj.tensile_010 =  1000 * MUSIC_WIRE_T010
+            tensile_400 = 1000 * MUSIC_WIRE_T400
+            life_category_index = _enum_index("Compression", "LifeCategory", getattr(obj, "LifeCategory", None))
+            match life_category_index:
+                case _ | 1 | 5:
+                    obj.PercentTensileEndurance = MUSIC_WIRE_PTE1
+                case 2:
+                    obj.PercentTensileEndurance = MUSIC_WIRE_PTE2
+                case 3:
+                    obj.PercentTensileEndurance = MUSIC_WIRE_PTE3
+                case 4:
+                    obj.PercentTensileEndurance = MUSIC_WIRE_PTE4
+                case 6:
+                    obj.PercentTensileEndurance = MUSIC_WIRE_PTE6
+                case 7:
+                    obj.PercentTensileEndurance = MUSIC_WIRE_PTE7
+                case 8:
+                    obj.PercentTensileEndurance = MUSIC_WIRE_PTE8
+            obj.PercentTensileStatic = MUSIC_WIRE_PTE1
+            obj.const_term = math.log10(obj.tbase010);
+            obj.slope_term = (tensile_400 - obj.tensile_010) / (math.log10(obj.tbase400) - obj.const_term);
+            obj.Tensile = obj.slope_term * (math.log10(obj.WireDiameter) - obj.const_term) + obj.tensile_010;
+            obj.StressLimitEndurance = obj.Tensile * obj.PercentTensileEndurance / 100.0;
+            obj.StressLimitStatic = obj.Tensile * obj.PercentTensileStatic / 100.0;
+            selection = getattr(obj, "EndType", None)
+            if isinstance(selection, (list, tuple)):
+                selection = selection[0] if selection else None
+            if selection == "User Specified"
+                obj.setEditorMode("CoilsInactive", 0)) # Visible R/W
+                obj.setEditorMode("AddCoilsAtSolid", 0)) # Visible R/W
+            else:
+                obj.setEditorMode("CoilsInactive", 1)) # Visible R/O
+                obj.setEditorMode("AddCoilsAtSolid", 1)) # Visible R/O
+            obj.setEditorMode("MaterialType", 0)) # Visible R/W
+            obj.setEditorMode("ASTMFedSpec", 0)) # Visible R/W
+            obj.setEditorMode("Process", 0)) # Visible R/W
+            obj.setEditorMode("LifeCategory", 0)) # Visible R/W
+            obj.setEditorMode("Density", 1)) # Visible R/O
+            obj.setEditorMode("TorsionModulus", 1)) # Visible R/O
+            obj.setEditorMode("HotFactorKh", 1)) # Visible R/O
+            obj.setEditorMode("Tensile", 1)) # Visible R/O
+            obj.setEditorMode("PercentTensileEndurance", 1)) # Visible R/O
+            obj.setEditorMode("PercentTensileStatic", 1)) # Visible R/O
+            obj.setEditorMode("StressLimitEndurance", 1)) # Visible R/O
+            obj.setEditorMode("StressLimitStatic", 1)) # Visible R/O
 
 #def cyclelife_calculation(material_type, life_category, spring_type, tensile, stress_at_deflection1, stress_at_deflection1) -> float:
 #    var i
@@ -138,23 +203,23 @@ def update_globals(obj) -> None:
 def update_properties(obj) -> None:
     """Update properties based on the object's properties."""
 
-    obj.MeanDiameter = obj.OutsideDiameterAtFree - obj.WireDiameter
-    obj.InsideDiameterAtFree = obj.MeanDiameter - obj.WireDiameter
-    obj.SpringIndex = obj.MeanDiameter / obj.WireDiameter
+    obj.MeanDiameterAtFree = obj.OutsideDiameterAtFree - obj.WireDiameter
+    obj.InsideDiameterAtFree = obj.MeanDiameterAtFree - obj.WireDiameter
+    obj.SpringIndex = obj.MeanDiameterAtFree / obj.WireDiameter
     kc = (4.0 * obj.SpringIndex - 1.0) / (4.0 * obj.SpringIndex - 4.0)
     ks = kc + 0.615 / obj.SpringIndex
     obj.CoilsActive = obj.CoilsTotal - obj.CoilsInactive
     temp = obj.SpringIndex * obj.SpringIndex
-    obj.Rate = obj.HotFactorKh * (obj.TorsionModulus / 1.0e6) * obj.MeanDiameter / (8.0 * obj.CoilsActive * temp * temp)
+    obj.Rate = obj.HotFactorKh * (obj.TorsionModulus / 1.0e6) * obj.MeanDiameterAtFree / (8.0 * obj.CoilsActive * temp * temp)
     obj.Deflection1 = obj.ForceAtDeflection1 / obj.Rate
     obj.Deflection2 = obj.ForceAtDeflection2 / obj.Rate
     obj.LengthAtDeflection1 = obj.LengthAtFree - obj.Deflection1
     obj.LengthAtDeflection2 = obj.LengthAtFree - obj.Deflection2
     obj.LengthStroke = obj.LengthAtDeflection1 - obj.LengthAtDeflection2
-    obj.Slenderness = obj.LengthAtFree / obj.MeanDiameter
+    obj.Slenderness = obj.LengthAtFree / obj.MeanDiameterAtFree
     obj.LengthAtSolid = obj.WireDiameter * (obj.CoilsTotal + obj.AddCoilsAtSolid)
     obj.ForceAtSolid = obj.Rate * (obj.LengthAtFree - obj.LengthAtSolid)
-    s_f = ks * 8.0 * obj.MeanDiameter / (math.pi * obj.WireDiameter * obj.WireDiameter * obj.WireDiameter)
+    s_f = ks * 8.0 * obj.MeanDiameterAtFree / (math.pi * obj.WireDiameter * obj.WireDiameter * obj.WireDiameter)
     obj.StressAtDeflection1 = s_f * obj.ForceAtDeflection1
     obj.StressAtDeflection2 = s_f * obj.ForceAtDeflection2
     obj.StressAtSolid = s_f * obj.ForceAtSolid
@@ -182,7 +247,7 @@ def update_properties(obj) -> None:
     else:
         obj.Cycle_Life = 0.0
     sq1 = obj.LengthAtFree
-    sq2 = obj.CoilsTotal * math.pi * obj.MeanDiameter
+    sq2 = obj.CoilsTotal * math.pi * obj.MeanDiameterAtFree
     wire_len_t = math.sqrt(sq1 * sq1 + sq2 * sq2)
     end_type_index = _enum_index("Compression", "EndType", getattr(obj, "EndType", None))
     if end_type_index == 5:

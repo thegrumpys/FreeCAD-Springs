@@ -15,8 +15,9 @@ class CompressionSpring:
         CoreUtils.add_property(obj, "ForceAtDeflection1", 50.0, "App::PropertyFloat", "Independent")
         CoreUtils.add_property(obj, "ForceAtDeflection2", 190.0, "App::PropertyFloat", "Independent")
 
-        CoreUtils.add_property(obj, "MeanDiameter", 0.0, "App::PropertyFloat", "Dependent", 1)
+        CoreUtils.add_property(obj, "MeanDiameterAtFree", 0.0, "App::PropertyFloat", "Dependent", 1)
         CoreUtils.add_property(obj, "CoilsActive", 0.0, "App::PropertyFloat", "Dependent", 1)
+        CoreUtils.add_property(obj, "Pitch", 0.0, "App::PropertyFloat", "Dependent", 1)
         CoreUtils.add_property(obj, "Rate", 0.0, "App::PropertyFloat", "Dependent", 1)
         CoreUtils.add_property(obj, "Deflection1", 0.0, "App::PropertyFloat", "Dependent", 1)
         CoreUtils.add_property(obj, "Deflection2", 0.0, "App::PropertyFloat", "Dependent", 1)
@@ -76,22 +77,15 @@ class CompressionSpring:
 
     def execute(self, obj):
 #        FreeCAD.Console.PrintMessage("CompressionSpring.execute"+" self="+str(self)+" obj="+str(obj)+"\n")
-        radius = obj.OutsideDiameterAtFree / 2.0
-        wire_radius = obj.WireDiameter / 2.0
-        pitch = (obj.LengthAtFree - obj.WireDiameter) / obj.CoilsActive # Depends upon EndType - this is for "Open"
-        obj.Shape = CoreUtils.helix_solid(radius, pitch, obj.LengthAtFree, wire_radius)
+        obj.Shape = CoreUtils.helix_solid(obj.OutsideDiameterAtFree / 2.0, obj.Pitch, obj.LengthAtFree, obj.WireDiameter / 2.0)
         SpringUtils.update_globals(obj)
         SpringUtils.update_properties(obj)
 
     def onChanged(self, obj, prop):
 #        FreeCAD.Console.PrintMessage("CompressionSpring.execute"+" self="+str(self)+" obj="+str(obj)+"\n")
         if prop == "EndType":
-            selection = getattr(obj, "EndType", None)
-            if isinstance(selection, (list, tuple)):
-                selection = selection[0] if selection else None
-                SpringUtils.update_globals(obj)
-                SpringUtils.update_properties(obj)
-
+            SpringUtils.update_globals(obj)
+            SpringUtils.update_properties(obj)
 
 def make():
 #    FreeCAD.Console.PrintMessage("make"+"\n")
