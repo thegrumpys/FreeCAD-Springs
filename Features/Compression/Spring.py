@@ -84,6 +84,9 @@ class CompressionSpring:
     def onChanged(self, obj, prop):
 #        FreeCAD.Console.PrintMessage("CompressionSpring.execute"+" self="+str(self)+" obj="+str(obj)+"\n")
         if prop == "EndType":
+            selection = getattr(obj, "EndType", None)
+            if isinstance(selection, (list, tuple)):
+                selection = selection[0] if selection else None
             SpringUtils.update_globals(obj)
             SpringUtils.update_properties(obj)
 

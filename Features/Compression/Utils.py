@@ -75,11 +75,7 @@ def update_globals(obj) -> None:
     """Update global properties based on the object's global properties."""
     prop_calc_method_index = _enum_index("Compression", "PropCalcMethod", getattr(obj, "PropCalcMethod", None))
     match prop_calc_method_index:
-        case 2:
-            pass #tbd
-        case 3:
-            pass #tbd
-        case 1 | _:
+        case 1: # Prop_Calc_Method = 1 - Use values from material table
             obj.MaterialType = MUSIC_WIRE_MATERIAL_TYPE
             obj.ASTMFedSpec = MUSIC_WIRE_ASTM_FS + "/" + MUSIC_WIRE_FEDSPEC
             if obj.HotFactorKh < 1.0:
@@ -112,27 +108,46 @@ def update_globals(obj) -> None:
             obj.Tensile = obj.slope_term * (math.log10(obj.WireDiameter) - obj.const_term) + obj.tensile_010;
             obj.StressLimitEndurance = obj.Tensile * obj.PercentTensileEndurance / 100.0;
             obj.StressLimitStatic = obj.Tensile * obj.PercentTensileStatic / 100.0;
+            end_type_index = _enum_index("Compression", "EndType", getattr(obj, "EndType", None))
+            match end_type_index:
+                case 4: # Closed & Ground
+                    obj.Pitch = (obj.LengthAtFree - 2.0 * obj.WireDiameter) / obj.CoilsActive
+                case 3: # Closed
+                    obj.Pitch = (obj.L_Free - 3.0 * obj.WireDiameter) / obj.CoilsActive
+                case 2: # Open & Ground
+                    obj.Pitch = obj.L_Free / obj.CoilsTotal
+                case 1: # Open
+                    obj.Pitch = (obj.L_Free - obj.WireDiameter) / obj.CoilsActive
+                case 5: # Tapered Closed & Ground
+                    obj.Pitch = (obj.L_Free - 1.5 * obj.WireDiameter) / obj.CoilsActive
+                case 6: # Pig-tail
+                    obj.Pitch = (obj.L_Free - 2.0 * obj.WireDiameter) / obj.CoilsActive
+                case _: # User Specified
+                    obj.Pitch = (obj.L_Free - (obj.CoilsInactive + 1.0) * obj.WireDiameter) / obj.CoilsActive
             selection = getattr(obj, "EndType", None)
-            if isinstance(selection, (list, tuple)):
-                selection = selection[0] if selection else None
             if selection == "User Specified"
-                obj.setEditorMode("CoilsInactive", 0)) # Visible R/W
-                obj.setEditorMode("AddCoilsAtSolid", 0)) # Visible R/W
+                obj.setEditorMode("CoilsInactive", 0) # Visible R/W
+                obj.setEditorMode("AddCoilsAtSolid", 0) # Visible R/W
             else:
-                obj.setEditorMode("CoilsInactive", 1)) # Visible R/O
-                obj.setEditorMode("AddCoilsAtSolid", 1)) # Visible R/O
-            obj.setEditorMode("MaterialType", 0)) # Visible R/W
-            obj.setEditorMode("ASTMFedSpec", 0)) # Visible R/W
-            obj.setEditorMode("Process", 0)) # Visible R/W
-            obj.setEditorMode("LifeCategory", 0)) # Visible R/W
-            obj.setEditorMode("Density", 1)) # Visible R/O
-            obj.setEditorMode("TorsionModulus", 1)) # Visible R/O
-            obj.setEditorMode("HotFactorKh", 1)) # Visible R/O
-            obj.setEditorMode("Tensile", 1)) # Visible R/O
-            obj.setEditorMode("PercentTensileEndurance", 1)) # Visible R/O
-            obj.setEditorMode("PercentTensileStatic", 1)) # Visible R/O
-            obj.setEditorMode("StressLimitEndurance", 1)) # Visible R/O
-            obj.setEditorMode("StressLimitStatic", 1)) # Visible R/O
+                obj.setEditorMode("CoilsInactive", 1) # Visible R/O
+                obj.setEditorMode("AddCoilsAtSolid", 1) # Visible R/O
+
+            obj.setEditorMode("MaterialType", 0) # Visible R/W
+            obj.setEditorMode("ASTMFedSpec", 0) # Visible R/W
+            obj.setEditorMode("Process", 0) # Visible R/W
+            obj.setEditorMode("LifeCategory", 0) # Visible R/W
+            obj.setEditorMode("Density", 1) # Visible R/O
+            obj.setEditorMode("TorsionModulus", 1) # Visible R/O
+            obj.setEditorMode("HotFactorKh", 1) # Visible R/O
+            obj.setEditorMode("Tensile", 1) # Visible R/O
+            obj.setEditorMode("PercentTensileEndurance", 1) # Visible R/O
+            obj.setEditorMode("PercentTensileStatic", 1) # Visible R/O
+            obj.setEditorMode("StressLimitEndurance", 1) # Visible R/O
+            obj.setEditorMode("StressLimitStatic", 1) # Visible R/O
+        case 2: # Prop_Calc_Method = 2 - Specify Tensile, %_Tensile_Stat & %_Tensile_Endur
+            pass #tbd
+        case 3: # Prop_Calc_Method = 3 - Specify Stress_Lim_Stat & Stress_Lim_Endur
+            pass #tbd
 
 #def cyclelife_calculation(material_type, life_category, spring_type, tensile, stress_at_deflection1, stress_at_deflection1) -> float:
 #    var i
@@ -210,6 +225,13 @@ def update_properties(obj) -> None:
     ks = kc + 0.615 / obj.SpringIndex
     obj.CoilsActive = obj.CoilsTotal - obj.CoilsInactive
     temp = obj.SpringIndex * obj.SpringIndex
+    
+    
+    
+    
+    
+    
+    
     obj.Rate = obj.HotFactorKh * (obj.TorsionModulus / 1.0e6) * obj.MeanDiameterAtFree / (8.0 * obj.CoilsActive * temp * temp)
     obj.Deflection1 = obj.ForceAtDeflection1 / obj.Rate
     obj.Deflection2 = obj.ForceAtDeflection2 / obj.Rate
