@@ -73,6 +73,7 @@ def _enum_index(enum_type: str, name: str, selection) -> int:
 
 def update_globals(obj) -> None:
     """Update global properties based on the object's global properties."""
+
     prop_calc_method_index = _enum_index("Compression", "PropCalcMethod", getattr(obj, "PropCalcMethod", None))
     match prop_calc_method_index:
         case 1: # Prop_Calc_Method = 1 - Use values from material table
@@ -88,7 +89,7 @@ def update_globals(obj) -> None:
             tensile_400 = 1000 * MUSIC_WIRE_T400
             life_category_index = _enum_index("Compression", "LifeCategory", getattr(obj, "LifeCategory", None))
             match life_category_index:
-                case _ | 1 | 5:
+                case 1 | 5:
                     obj.PercentTensileEndurance = MUSIC_WIRE_PTE1
                 case 2:
                     obj.PercentTensileEndurance = MUSIC_WIRE_PTE2
@@ -110,28 +111,12 @@ def update_globals(obj) -> None:
             obj.StressLimitStatic = obj.Tensile * obj.PercentTensileStatic / 100.0;
             end_type_index = _enum_index("Compression", "EndType", getattr(obj, "EndType", None))
             match end_type_index:
-                case 4: # Closed & Ground
-                    obj.Pitch = (obj.LengthAtFree - 2.0 * obj.WireDiameter) / obj.CoilsActive
-                case 3: # Closed
-                    obj.Pitch = (obj.L_Free - 3.0 * obj.WireDiameter) / obj.CoilsActive
-                case 2: # Open & Ground
-                    obj.Pitch = obj.L_Free / obj.CoilsTotal
-                case 1: # Open
-                    obj.Pitch = (obj.L_Free - obj.WireDiameter) / obj.CoilsActive
-                case 5: # Tapered Closed & Ground
-                    obj.Pitch = (obj.L_Free - 1.5 * obj.WireDiameter) / obj.CoilsActive
-                case 6: # Pig-tail
-                    obj.Pitch = (obj.L_Free - 2.0 * obj.WireDiameter) / obj.CoilsActive
-                case _: # User Specified
-                    obj.Pitch = (obj.L_Free - (obj.CoilsInactive + 1.0) * obj.WireDiameter) / obj.CoilsActive
-            selection = getattr(obj, "EndType", None)
-            if selection == "User Specified"
-                obj.setEditorMode("CoilsInactive", 0) # Visible R/W
-                obj.setEditorMode("AddCoilsAtSolid", 0) # Visible R/W
-            else:
-                obj.setEditorMode("CoilsInactive", 1) # Visible R/O
-                obj.setEditorMode("AddCoilsAtSolid", 1) # Visible R/O
-
+                case 1 | 2 | 3 | 4 | 5 | 6: 
+                    obj.setEditorMode("CoilsInactive", 0) # Visible R/W
+                    obj.setEditorMode("AddCoilsAtSolid", 0) # Visible R/W
+                case _: # user specified
+                    obj.setEditorMode("CoilsInactive", 1) # Visible R/O
+                    obj.setEditorMode("AddCoilsAtSolid", 1) # Visible R/O
             obj.setEditorMode("MaterialType", 0) # Visible R/W
             obj.setEditorMode("ASTMFedSpec", 0) # Visible R/W
             obj.setEditorMode("Process", 0) # Visible R/W
@@ -224,14 +209,23 @@ def update_properties(obj) -> None:
     kc = (4.0 * obj.SpringIndex - 1.0) / (4.0 * obj.SpringIndex - 4.0)
     ks = kc + 0.615 / obj.SpringIndex
     obj.CoilsActive = obj.CoilsTotal - obj.CoilsInactive
+    end_type_index = _enum_index("Compression", "EndType", getattr(obj, "EndType", None))
+    match end_type_index:
+        case 1: # Open
+            obj.Pitch = (obj.LengthAtFree - obj.WireDiameter) / obj.CoilsActive
+        case 2: # Open & Ground
+            obj.Pitch = obj.LengthAtFree / obj.CoilsTotal
+        case 3: # Closed
+            obj.Pitch = (obj.LengthAtFree - 3.0 * obj.WireDiameter) / obj.CoilsActive
+        case 4: # Closed & Ground
+            obj.Pitch = (obj.LengthAtFree - 2.0 * obj.WireDiameter) / obj.CoilsActive
+        case 5: # Tapered Closed & Ground
+            obj.Pitch = (obj.LengthAtFree - 1.5 * obj.WireDiameter) / obj.CoilsActive
+        case 6: # Pig-tail
+            obj.Pitch = (obj.LengthAtFree - 2.0 * obj.WireDiameter) / obj.CoilsActive
+        case _: # User Specified
+                    obj.Pitch = (obj.LengthAtFree - (obj.CoilsInactive + 1.0) * obj.WireDiameter) / obj.CoilsActive
     temp = obj.SpringIndex * obj.SpringIndex
-    
-    
-    
-    
-    
-    
-    
     obj.Rate = obj.HotFactorKh * (obj.TorsionModulus / 1.0e6) * obj.MeanDiameterAtFree / (8.0 * obj.CoilsActive * temp * temp)
     obj.Deflection1 = obj.ForceAtDeflection1 / obj.Rate
     obj.Deflection2 = obj.ForceAtDeflection2 / obj.Rate
@@ -262,6 +256,11 @@ def update_properties(obj) -> None:
     stress_average = (obj.StressAtDeflection1 + obj.StressAtDeflection2) / 2.0
     stress_range = (obj.StressAtDeflection2 - obj.StressAtDeflection1) / 2.0
     se2 = obj.StressLimitEndurance / 2.0
+    print('kc='+str(kc));
+    print('stress_average='+str(stress_average));
+    print('stress_range='+str(stress_range));
+    print('se2='+str(se2));
+    print('StressLimitStatic='+str(obj.StressLimitStatic));
     obj.FactorOfSafetyAtCycleLife =  obj.StressLimitStatic / (kc * stress_range * (obj.StressLimitStatic - se2) / se2 + stress_average)
     if method_index == 1 and obj.Material_Type != 0:
 #        obj.CycleLife = cyclelife_calculation(obj.MaterialType, obj.LifeCategory, 1, obj.Tensile, obj.StressAtDeflection1, obj.StressAtDeflection2)
