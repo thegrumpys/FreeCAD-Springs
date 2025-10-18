@@ -29,7 +29,7 @@ def preference_bool(name: str, default: bool) -> bool:
 
 def add_property(obj, name, default, typ="App::PropertyFloat", group="Spring", mode=0):
     """Safely add a FreeCAD property if it doesn't already exist."""
-#    FreeCAD.Console.PrintMessage("add_property"+" obj="+str(obj)+" name="+name+" default="+str(default)+" typ="+typ+" group="+group+" mode="+str(mode)+"\n")
+    FreeCAD.Console.PrintMessage(f"[add_property] obj={obj} name={name} default={default} typ={typ} group={group} mode={mode}\n")
     if not hasattr(obj, name):
         obj.addProperty(typ, name, group, "")
         if default is not None:
@@ -38,7 +38,7 @@ def add_property(obj, name, default, typ="App::PropertyFloat", group="Spring", m
         
 def helix_solid(radius, pitch, height, wire_radius):
     """Create a helical solid (coil) from geometric parameters."""
-#    FreeCAD.Console.PrintMessage("helix_solid"+" radius="+str(radius)+" pitch="+str(pitch)+" height="+str(height)+" wire_radius="+str(wire_radius)+"\n")
+    FreeCAD.Console.PrintMessage(f"[helix_solid] radius={radius} pitch={pitch} height={height} wire_radius={wire_radius}\n")
     helix = Part.makeHelix(pitch, height, radius)
     helix_wire = helix if isinstance(helix, Part.Wire) else Part.Wire([helix])
     helix_edge = helix_wire.Edges[0]
@@ -81,11 +81,12 @@ def load_enum_table(type, enum_name):
     Load <enum_name>.json once and return (header, rows).
     Cached after first load for performance.
     """
-    FreeCAD.Console.PrintMessage("load_enum_table"+" enum_name="+enum_name+"\n")
+    FreeCAD.Console.PrintMessage(f"[load_enum_table] type={type} enum_name={enum_name}\n")
     global _ENUM_CACHE
 
     # If cached, return immediately
     if enum_name in _ENUM_CACHE:
+        print(f"[load_enum_table] _ENUM_CACHE[enum_name]={_ENUM_CACHE[enum_name]}")
         return _ENUM_CACHE[enum_name]
 
     # Locate JSON relative to this script
@@ -107,29 +108,32 @@ def load_enum_table(type, enum_name):
         header, rows = [], []
         _ENUM_CACHE[enum_name] = (header, rows, mtime)
 
-    return header, rows
+    print(f"[load_enum_table] header={header} rows={rows} mtime={mtime}")
+    return header, rows, mtime
 
 def clear_enum_cache():
     """Clear all cached enumeration data (for dev/debug use)."""
-    FreeCAD.Console.PrintMessage("clear_enum_cache"+"\n")
+    FreeCAD.Console.PrintMessage(f"[clear_enum_cache]"+"\n")
     global _ENUM_CACHE
     _ENUM_CACHE.clear()
-    FreeCAD.Console.PrintMessage("[enum_loader] Cache cleared\n")
+    FreeCAD.Console.PrintMessage(f"[clear_enum_cache] Cache cleared\n")
     
 def reload_enum(fp, type, name):
     """
     Rebuild a single enumeration property from its JSON definition.
     Keeps the current value if it is still valid.
     """
-    FreeCAD.Console.PrintMessage("reload_enum"+" fp="+str(fp)+" type="+type+" name="+name+"\n")
+    FreeCAD.Console.PrintMessage(f"[reload_enum] fp={fp} type={type} name={name}\n")
 
-    header, rows = load_enum_table(type, name)
+    _header, rows, _mtime = load_enum_table(type, name)
     if not rows:
         FreeCAD.Console.PrintWarning(f"[reload_enum] No data for {name}\n")
         return
 
     enum_values = [r[0] for r in rows]
+    print(f"[reload_enum] enum_values={enum_values}")
     current = getattr(fp, name, None)
+    print(f"[reload_enum] current={current}")
     setattr(fp, name, enum_values)
 
     # Restore previous selection if still valid
@@ -138,4 +142,4 @@ def reload_enum(fp, type, name):
     else:
         setattr(fp, name, enum_values[0])
 
-    FreeCAD.Console.PrintMessage(f"[reload_enum] {name} reloaded with {len(enum_values)} choices\n")
+    FreeCAD.Console.PrintMessage(f"[reload_enum] {name} reloaded with {len(enum_values)} enum_values={enum_values}\n")
