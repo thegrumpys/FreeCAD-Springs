@@ -287,7 +287,7 @@ def update_properties(obj) -> None:
     wire_len_t = math.sqrt(sq1 * sq1 + sq2 * sq2)
     end_type_index = _enum_index("Compression", "EndType", getattr(obj, "EndType", None))
     print(f"[update_properties] end_type_index={end_type_index}")
-    if end_type_index == 5:
+    if end_type_index == 5: # Tapered_C&G
         wire_len_t = wire_len_t - 3.926 * obj.WireDiameter
     obj.Weight = obj.Density * (math.pi * obj.WireDiameter * obj.WireDiameter / 4.0) * wire_len_t
     if obj.LengthAtFree > obj.LengthAtSolid:
